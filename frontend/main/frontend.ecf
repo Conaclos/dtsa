@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-13-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-13-0 http://www.eiffel.com/developers/xml/configuration-1-13-0.xsd" name="frontend" uuid="2ED2D35A-7CD4-4219-BB5C-6769CED5FE83">
+	<target name="frontend">
+		<root class="APPLICATION" feature="default_create"/>
+		<file_rule>
+			<exclude>/EIFGENs$</exclude>
+			<exclude>/CVS$</exclude>
+			<exclude>/local_library$</exclude>
+			<exclude>/.svn$</exclude>
+		</file_rule>
+		<option warning="true">
+			<assertions precondition="true" postcondition="true" check="true" invariant="true" loop="true" supplier_precondition="true"/>
+		</option>
+		<setting name="console_application" value="true"/>
+		<precompile name="base_pre" location="$ISE_PRECOMP\base-safe.ecf"/>
+		<library name="base" location="$ISE_LIBRARY\library\base\base-safe.ecf"/>
+		<library name="json" location="..\embeded_library\json\json-safe.ecf"/>
+		<library name="net" location="$ISE_LIBRARY\library\net\net-safe.ecf"/>
+		<cluster name="core" location=".\core\" recursive="true"/>
+		<cluster name="proxy" location=".\proxy\" recursive="true"/>
+		<cluster name="util" location=".\util\" recursive="true"/>
+	</target>
+</system>
