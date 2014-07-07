@@ -1,0 +1,6 @@
+{
+	"imageId": "ami-4518d032",
+	"instanceType": "m3.medium",
+	"securityGroup": "dtsa",
+	"region": "eu-west-1"
+}
