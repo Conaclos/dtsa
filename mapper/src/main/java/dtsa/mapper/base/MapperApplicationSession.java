@@ -6,6 +6,7 @@ import java.net.Socket;
 import dtsa.mapper.client.base.MapperCLientSession;
 import dtsa.mapper.util.communication.ApplicationSession;
 import dtsa.mapper.util.communication.ClientListener;
+import static dtsa.mapper.util.dependency.SharedDependencyInjector.injector;
 
 /**
  * 
@@ -13,12 +14,11 @@ import dtsa.mapper.util.communication.ClientListener;
  * @date 2014/06/25
  *
  */
-public class Application
-	extends ApplicationSession
-		implements Runnable {
+public class MapperApplicationSession
+	extends ApplicationSession {
 	
 // Creation
-	public Application () {
+	public MapperApplicationSession () {
 		super (new ClientListener (DefaultPort));
 	}
 	
@@ -30,7 +30,7 @@ public class Application
 	
 // Implementation	
 	@Override
-	public void launchSession (Socket aSocket) {
+	protected void launchSession (Socket aSocket) {
 		try {
 			final MapperCLientSession session = new MapperCLientSession (aSocket);
 			session.run ();
