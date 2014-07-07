@@ -6,8 +6,11 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.regions.Region;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectResult;
 
+import dtsa.mapper.util.annotation.Nullable;
 import dtsa.mapper.util.file.DirectoryCompressionException;
 import dtsa.mapper.util.file.Store;
 import dtsa.mapper.util.file.UnreachablePathException;
@@ -27,17 +30,19 @@ public class S3Bucket
 	 *            - Bucket name.
 	 * @param aLocation
 	 *            - Bucket location.
+	 * @param aAccess
+	 *            - Bucket location.
 	 * @param aS3
 	 *            - S3 service.
 	 */
-	public S3Bucket (String aName, Region aLocation, AmazonS3Client aS3) {
+	public S3Bucket (String aName, String aLocation, @Nullable String aAccess, AmazonS3Client aS3) {
 		super (aName);
 		location = aLocation;
+		access = aAccess;
 		s3 = aS3;
-		s3.setRegion (aLocation);
 		if (! s3.doesBucketExist (aName)) {
 			try {
-				s3.createBucket (aName);
+				s3.createBucket (aName, aLocation);
 			}
 			catch (AmazonServiceException e) {
 				// TODO Logging
@@ -47,6 +52,51 @@ public class S3Bucket
 		
 		assert s3 == aS3: "ensure: `s3' set with `aS3'";
 		assert name == aName: "ensure: `name' set with `aName'";
+		assert access == aAccess: "ensure: `access' set with `aAccess'";
+		assert location == aLocation: "ensure: `location' set with `aLocation'";
+	}
+	
+// Access
+	/**
+	 * @return Bucket URI
+	 */
+	public String URI () {
+		return "https://s3-" + location + ".amazonaws.com/" + name + "/";
+	}
+	
+	/**
+	 * 
+	 * @return Bucket location.
+	 */
+	public String location () {
+		return location;
+	}
+	
+	/**
+	 * 
+	 * @return URI of the last stored entity. Null if none.
+	 */
+	public @Nullable String lastStoredURI () {
+		@Nullable String localLastStored;
+		@Nullable String result;
+		
+		localLastStored = lastStored;
+		if (localLastStored != null) {
+			result =  URI () + lastStored;
+		}
+		else {
+			result = null;
+		}
+		
+		return result;		
+	}
+	
+	/**
+	 * 
+	 * @return MD5 of the last stored entity. Null if none.
+	 */
+	public @Nullable String lastStoredMd5 () {
+		return lastStoredMD5;
 	}
 	
 // Change
@@ -109,8 +159,22 @@ public class S3Bucket
 		assert aPlainFile.exists (): "require: `aPlainFile' exists.";
 		assert ! aPlainFile.isDirectory (): "require: `aPlainFile' denotes a plain file.";
 		
-		s3.setRegion (location);
-		s3.putObject (new PutObjectRequest (name, aPlainFile.getName (), aPlainFile));
+		PutObjectResult objectResult;
+		PutObjectRequest objectRequest;
+		CannedAccessControlList permission;
+		
+		if (access == null) {
+			permission = CannedAccessControlList.Private;
+		}
+		else if (access.equals ("public")) {
+			permission = CannedAccessControlList.PublicRead;
+		}
+		else {
+			permission = CannedAccessControlList.Private;
+		}
+		objectRequest = new PutObjectRequest (name, aPlainFile.getName (), aPlainFile).withCannedAcl (permission);
+		objectResult = s3.putObject (objectRequest);
+		lastStoredMD5 = objectResult.getContentMd5 ();
 		lastStored = aPlainFile.getName ();
 	}
 	
@@ -123,6 +187,17 @@ public class S3Bucket
 	/**
 	 * Bucket location.
 	 */
-	protected final Region location;
+	protected final String location;
+	
+	/**
+	 * Access permission for future stored files.
+	 * Null means private.
+	 */
+	protected final @Nullable String access;
+	
+	/**
+	 * MD5 of the last stored entity.
+	 */
+	protected @Nullable String lastStoredMD5;
 	
 }

@@ -14,24 +14,16 @@ public class StoreResponse
 
 // Creation
 	/**
-	 * Create a normal store response, i.e. without exception.
-	 */
-	public StoreResponse () {
-		super ();
-		URI = null;
-		
-		assert ! hasException (): "ensure: without exception.";
-	}
-	
-	/**
 	 * Create a normal store response with `aURI' as `getURI'.
 	 * 
 	 * @param aURI - Stored entity URI.
+	 * @param aMd5 - Stored entity MD5.
 	 */
-	public StoreResponse (String aURI) {
+	public StoreResponse (String aURI, String aMD5) {
 		URI = aURI;
 		
 		assert getURI () == aURI: "ensure: `getURI' set with `aURI'";
+		assert ! hasException (): "ensure: without exception.";
 	}
 	
 	/**
@@ -50,8 +42,16 @@ public class StoreResponse
 	 * 
 	 * @return Stored entity URI.
 	 */
-	public String getURI () {
+	public @Nullable String getURI () {
 		return URI;
+	}
+	
+	/**
+	 * 
+	 * @return Stored entity MD5.
+	 */
+	public @Nullable String getMD5 () {
+		return MD5;
 	}
 	
 // Change
@@ -76,5 +76,10 @@ public class StoreResponse
 	 * Stored entity URI.
 	 */
 	protected @Nullable String URI;
+	
+	/**
+	 * Stored entity MD5.
+	 */
+	protected @Nullable String MD5;
 	
 }

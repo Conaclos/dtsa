@@ -28,7 +28,7 @@ import dtsa.mapper.util.annotation.Nullable;
 public class EC2Instance {
 	
 // Creation
-	public EC2Instance (String aImageId, String aInstanceType, Region aLocation, String aSecurityGroup, AmazonEC2 aEc2) {
+	public EC2Instance (String aImageId, String aInstanceType, String aLocation, String aSecurityGroup, AmazonEC2 aEc2) {
 		securityGroup = aSecurityGroup;
 		instanceType = aInstanceType;
 		location = aLocation;
@@ -82,7 +82,7 @@ public class EC2Instance {
 	 * 
 	 * @return Location.
 	 */
-	public Region location () {
+	public String location () {
 		return location;
 	}
 	
@@ -118,7 +118,6 @@ public class EC2Instance {
 	public void launch (int aCount) throws AmazonServiceException {
 		assert aCount > 0: "require: `aCount' strictly positive.";
 		
-		ec2.setRegion (location);
 		createSecurityGroup ();
 		launchInstances (aCount);
 	}
@@ -137,7 +136,7 @@ public class EC2Instance {
 	/**
 	 * Bucket location.
 	 */
-	protected Region location;
+	protected String location;
 	
 	/**
 	 * Security group.

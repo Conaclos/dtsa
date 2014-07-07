@@ -30,11 +30,11 @@ import static dtsa.mapper.util.configuration.SharedLabeledConfigurations.configu
  * @date 2014/06/26
  *
  */
-public class AWSProcessor
+public class AWSRequestProcessor
 		implements RequestProcessor {
 	
 // Creation
-	public AWSProcessor () {
+	public AWSRequestProcessor () {
 		
 	}
 	
@@ -64,6 +64,11 @@ public class AWSProcessor
 	 * Bucket location configuration key.
 	 */
 	public final static String  S3RegionKey = "region";
+	
+	/**
+	 * Bucket access configuration key.
+	 */
+	public final static String  S3AccessKey = "access";
 	
 // Constant (EC2)
 	/**
@@ -109,7 +114,7 @@ public class AWSProcessor
 		try {
 			bucket = defaultBucket ();
 			bucket.storeFromPath (aRequest.getPath ());
-			aRequest.setResponse (new StoreResponse ("")); // TODO set URI
+			aRequest.setResponse (new StoreResponse (bucket.lastStoredURI (), bucket.lastStoredMd5 ())); // TODO set URI
 		}
 		catch (AmazonServiceException e) {
 			aRequest.setResponse (new StoreResponse (e));
@@ -188,14 +193,16 @@ public class AWSProcessor
 	 */
 	protected S3Bucket defaultBucket () throws UnspecifiedParameterException, ConfigurationParsingException, ProfileException {
 		@Nullable Map <String, String> props;
-		@Nullable String bucketName, regionName;
+		@Nullable String bucketName, regionName, access;
 		@Nullable Region location;
+		AmazonS3Client s3Client;
 		S3Bucket result;
 		
 		props = configurations.labeled (S3ConfigurationLabel);
 		if (props != null) {
 			bucketName = props.get (S3BucketKey);
 			regionName = props.get (S3RegionKey);
+			access = props.get (S3AccessKey);
 			
 			if (regionName == null) {
 				throw new UnspecifiedParameterException (S3ConfigurationLabel, S3RegionKey);
@@ -209,8 +216,14 @@ public class AWSProcessor
 				else if (location == null) {
 					throw new UnspecifiedParameterException (S3ConfigurationLabel, S3RegionKey);
 				}
+				else if (access == null) {
+					throw new UnspecifiedParameterException (S3ConfigurationLabel, S3AccessKey);
+				}
 				else {
-					result = new S3Bucket (bucketName, location, new AmazonS3Client (credentials ()));
+					s3Client = new AmazonS3Client (credentials ());
+					s3Client.setEndpoint ("s3." + regionName);
+					s3Client.setRegion (location);
+					result = new S3Bucket (bucketName, regionName, access, s3Client);
 				}
 			}
 		}
@@ -231,6 +244,7 @@ public class AWSProcessor
 	protected EC2Instance defaultInstance () throws ConfigurationParsingException, UnspecifiedParameterException, ProfileException {
 		@Nullable Map <String, String> props;
 		@Nullable String instanceType, imageId, securityGroup, regionName;
+		AmazonEC2Client ec2Client;
 		@Nullable Region location;
 		EC2Instance result;
 		
@@ -260,7 +274,10 @@ public class AWSProcessor
 					throw new UnspecifiedParameterException (EC2ConfigurationLabel, EC2SecurityGroupKey);
 				}
 				else {
-					result = new EC2Instance (imageId, instanceType, location, securityGroup, new AmazonEC2Client (credentials ()));
+					ec2Client = new AmazonEC2Client (credentials ());
+					ec2Client.setEndpoint ("ec2." + regionName);
+					ec2Client.setRegion (location);
+					result = new EC2Instance (imageId, instanceType, regionName, securityGroup, ec2Client);
 				}
 			}
 		}

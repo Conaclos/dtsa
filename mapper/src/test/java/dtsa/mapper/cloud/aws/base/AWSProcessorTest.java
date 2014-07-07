@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import dtsa.mapper.client.request.StartingInstancesRequest;
 import dtsa.mapper.client.request.StoreRequest;
+import dtsa.mapper.client.response.StoreResponse;
 import dtsa.mapper.util.annotation.Nullable;
 
 /**
@@ -29,19 +30,29 @@ public class AWSProcessorTest {
 // Test
 	/**
 	 * Test: AWSProcessor.process_store
+	 * @throws Exception
 	 */
 	@Test
 	@Ignore
-	public void testStore () {
-		AWSProcessor processor;
+	public void testStore () throws Exception {
+		AWSRequestProcessor processor;
 		@Nullable URL url = getClass ().getResource ("/" + fileTest);
+		@Nullable Exception exception;
+		StoreRequest req;
+		StoreResponse ans;
 		
 		if (url != null) {
 			@Nullable String path = url.getPath ();
 			
 			if (path != null) {
-				processor = new AWSProcessor ();
-				processor.processStore (new StoreRequest (path));
+				processor = new AWSRequestProcessor ();
+				req = new StoreRequest (path);
+				processor.processStore (req);
+				ans = req.response ();
+				exception = ans.getException ();
+				if (exception != null) {
+					throw exception;
+				}
 			}
 			else {
 				assertTrue ("file or directory path for testing exists", false);
@@ -58,9 +69,9 @@ public class AWSProcessorTest {
 	@Test
 	@Ignore
 	public void testStartingInstance () {
-		AWSProcessor processor;
+		AWSRequestProcessor processor;
 		
-		processor = new AWSProcessor ();
+		processor = new AWSRequestProcessor ();
 		processor.processStartingInstances (new StartingInstancesRequest (1));
 	}
 	

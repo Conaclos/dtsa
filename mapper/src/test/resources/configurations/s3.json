@@ -1,4 +1,5 @@
 {
-	"bucket": "dtsa",
-	"region": "eu-west-1"
+	"bucket": "dtsa-sw",
+	"region": "eu-west-1",
+	"access": "private"
 }
