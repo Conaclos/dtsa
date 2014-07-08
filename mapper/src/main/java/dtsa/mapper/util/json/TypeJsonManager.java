@@ -25,7 +25,7 @@ public class TypeJsonManager <G> {
 	 */
 	public TypeJsonManager () {
 		mapping = new HashMap <> ();
-		jsonMapper = new ObjectMapper();
+		jsonMapper = new ObjectMapper ();
 	}
 	
 // Access
