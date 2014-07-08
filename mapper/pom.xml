@@ -49,6 +49,12 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
+			<groupId>com.google.java.contract</groupId>
+			<artifactId>cofoja</artifactId>
+			<version>1.1-r150</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.11</version>
