@@ -1,9 +1,15 @@
 package dtsa.mapper.util.configuration;
 
+/**
+ * 
+ * @description Share a single configuration instance.
+ * @author Victorien ELvinger
+ * @date 2014/07/7
+ *
+ */
+public class SharedLabeledConfigurations {
 
-public abstract class SharedLabeledConfigurations {
-
-// Implementation
+// Shared
 	/**
 	 * Configurations
 	 */
