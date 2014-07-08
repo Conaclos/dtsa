@@ -63,7 +63,7 @@ public abstract class InputListener <I>
 	/**
 	 * Listen and retrieve last input.
 	 * During input listening an `java.io.IOException' can be triggered 
-	 * due to the call of `close' by `interrupt'.
+	 * due to the call of `close' via `interrupt'.
 	 * 
 	 * @SideEffect
 	 * @return last input or null if the input is invalid.

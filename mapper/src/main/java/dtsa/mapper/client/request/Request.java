@@ -15,7 +15,7 @@ public abstract class Request {
 // Access
 	/**
 	 * @return Answer of this current request.
-	 * Null request is not already processed or if request has no answer.
+	 * Null if request is not already processed or if request has no answer.
 	 */
 	public abstract @Nullable Response response ();
 	
