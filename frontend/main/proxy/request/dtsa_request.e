@@ -53,6 +53,8 @@ feature -- Processing
 			-- Visit current request with `a_visitor'.
 		note
 			design_pattern: "visitor"
+		require
+			unanswered: not has_response
 		deferred
 		ensure
 			response_for_reactive_processor: a_visitor.is_reactive = has_response
