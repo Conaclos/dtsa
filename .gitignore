@@ -1,5 +1,6 @@
 frontend/main/EIFGENs/
 frontend/test/EIFGENs/
 mapper/target/
+mapped/target/
 
 **/*.rc
