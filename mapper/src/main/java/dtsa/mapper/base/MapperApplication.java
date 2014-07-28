@@ -1,11 +1,32 @@
 package dtsa.mapper.base;
 
-import com.amazonaws.Request;
+import org.picocontainer.MutablePicoContainer;
 
-import dtsa.mapper.cloud.aws.base.AWSRequestProcessor;
-import dtsa.mapper.util.communication.ApplicationSession;
-import dtsa.mapper.util.dependency.SharedDependencyInjector;
-import dtsa.mapper.util.json.TypeJsonManager;
+import dtsa.mapper.client.request.EchoClientRequest;
+import dtsa.mapper.client.request.StoreClientRequest;
+import dtsa.mapper.client.request.StartingInstancesClientRequest;
+import dtsa.mapper.client.response.EchoMapperResponse;
+import dtsa.mapper.client.response.StoreMapperResponse;
+import dtsa.mapper.client.response.StartingInstancesMapperResponse;
+import dtsa.mapper.client.response.MapperExceptionResponse;
+import dtsa.mapper.cloud.aws.base.AWSClientRequestVisitor;
+import dtsa.mapper.cloud.mapped.base.DefaultMappedProxyFactory;
+import dtsa.mapper.cloud.mapped.request.EchoMapperRequest;
+import dtsa.mapper.cloud.mapped.request.ProjectCompilationMapperRequest;
+import dtsa.mapper.cloud.mapped.response.EchoServiceResponse;
+import dtsa.util.communication.base.Request;
+import dtsa.util.communication.base.RequestVisitor;
+import dtsa.util.communication.base.Response;
+import dtsa.util.communication.base.ResponseVisitor;
+import dtsa.util.communication.session.DefaultApplication;
+import dtsa.util.configuration.UnmatchableTypeException;
+import dtsa.util.configuration.UnparsableException;
+import dtsa.util.json.LabeledJson2Request;
+import dtsa.util.json.LabeledJson2Response;
+import dtsa.util.json.Request2LabeledJson;
+import dtsa.util.json.Response2LabeledJson;
+import dtsa.util.aws.AWSConfiguration;
+import dtsa.mapper.client.base.MockMapperResponseVisitor;
 
 /**
  * 
@@ -15,30 +36,79 @@ import dtsa.mapper.util.json.TypeJsonManager;
  *
  */
 public class MapperApplication
-		extends SharedDependencyInjector
-		implements Runnable {
-	
-// Creation
+	extends DefaultApplication {
+
+// Constant
 	/**
-	 * Create a session and setup dependencies.
+	 * AWS configuration filename.
 	 */
-	public MapperApplication (String... args) {
-		session = new MapperApplicationSession ();
-		
-		mutableInjector.addComponent (AWSRequestProcessor.class);
-		mutableInjector.addComponent (new TypeJsonManager <Request> ());
-	}
+	public final static String AWSConfiguration = "aws.json";
 	
-// Other
+	/**
+	 * SErvice configuration filename.
+	 */
+	public final static String ServiceConfiguration = "service.json";
+	
+// Implementation	
+	/**
+	 * Default dependency injector.
+	 */
 	@Override
-	public void run () {
-		session.run ();
+	protected MutablePicoContainer defaultDependencyInjector () {
+		MutablePicoContainer mutableInjector;
+		LabeledJson2Request <Request <? extends RequestVisitor>> json2Request;
+		Response2LabeledJson <Response <? extends ResponseVisitor>> response2Json;
+		Request2LabeledJson <Request <? extends RequestVisitor>> request2Json;
+		LabeledJson2Response <Response <? extends ResponseVisitor>> json2Response;
+		AWSConfiguration awsCnfig;
+		ServiceConfiguration serviceConfig;
+		
+		mutableInjector = super.defaultDependencyInjector ();
+				
+		// Client request and server response
+		json2Request = new LabeledJson2Request <> ();
+		json2Request.add ("echo", EchoClientRequest.class);
+		json2Request.add ("store", StoreClientRequest.class);
+		json2Request.add ("startin_instances", StartingInstancesClientRequest.class);
+		mutableInjector.addComponent (json2Request);
+		
+		response2Json = new Response2LabeledJson <> ();
+		response2Json.add ("echo", EchoMapperResponse.class);
+		response2Json.add ("store", StoreMapperResponse.class);
+		response2Json.add ("starting_instances", StartingInstancesMapperResponse.class);
+		response2Json.add ("exception", MapperExceptionResponse.class);
+		mutableInjector.addComponent (response2Json);
+		
+		// Server request and Service response
+		request2Json = new Request2LabeledJson <> ();
+		request2Json.add ("echo", EchoMapperRequest.class);
+		request2Json.add ("compilation", ProjectCompilationMapperRequest.class);
+		mutableInjector.addComponent (request2Json);
+		
+		json2Response = new LabeledJson2Response <> ();
+		json2Response.add ("echo", EchoServiceResponse.class);
+		mutableInjector.addComponent (json2Response);
+		
+		// Extra configurations
+		try {
+			awsCnfig = configurations.labeled (AWSConfiguration, AWSConfiguration.class);
+			mutableInjector.addComponent (awsCnfig);
+			
+			serviceConfig = configurations.labeled (ServiceConfiguration, ServiceConfiguration.class);
+			mutableInjector.addComponent (serviceConfig);
+			
+			// AWS Client Request Visitor
+			mutableInjector.addComponent (AWSClientRequestVisitor.class);
+			mutableInjector.addComponent (MockMapperResponseVisitor.class);
+			
+			mutableInjector.addComponent (DefaultMappedProxyFactory.class);
+		}
+		catch (UnparsableException | UnmatchableTypeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return mutableInjector;
 	}
-	
-// Implementation
-	/**
-	 * Application session.
-	 */
-	protected ApplicationSession session;
 	
 }

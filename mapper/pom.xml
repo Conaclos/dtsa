@@ -7,6 +7,7 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.1</version>
 				<configuration>
@@ -15,9 +16,39 @@
 					<enableAssertions>true</enableAssertions>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>2.3</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<transformers>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>dtsa.mapped.base.Root</mainClass>
+								</transformer>
+							</transformers>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
+	
 	<dependencies>
+		<!-- Project and compilation dependencies -->
+		<dependency>
+			<groupId>dtsa</groupId>
+			<artifactId>util</artifactId>
+			<version>0.1</version>
+			<scope>compile</scope>
+		</dependency>
+		
+		<!-- External and compilation dependencies -->
 		<dependency>
 			<groupId>com.amazonaws</groupId>
 			<artifactId>aws-java-sdk</artifactId>
@@ -54,6 +85,8 @@
 			<version>1.1-r150</version>
 			<scope>compile</scope>
 		</dependency>
+		
+		<!-- External and testing dependencies -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>

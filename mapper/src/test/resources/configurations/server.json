@@ -1,0 +1,8 @@
+{
+	"port": 2014,
+	"exceptionLogging": true,
+	"client": {
+		"timeout": 50,
+		"concurrent": false
+	}
+}

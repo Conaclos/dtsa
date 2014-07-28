@@ -9,12 +9,11 @@ package dtsa.mapper.base;
 public class Root {
 	
 	/**
-	 * Setting and launch the Application
-	 * 
+	 * Define entry point.
 	 * @param args
 	 */
-	public static void main (final String... args) {
-		new MapperApplication (args).run ();
+	public static void main (String... words) {
+		new MapperApplication ().run ();
 	}
 	
 }
