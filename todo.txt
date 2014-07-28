@@ -1,0 +1,3 @@
+
+* Improve exceptions for TypedRessource
+* Improve mapped proxy
