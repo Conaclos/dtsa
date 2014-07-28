@@ -10,14 +10,17 @@ class
 inherit
 
 	JSON_VISITOR
+		redefine
+			default_create
+		end
 
 create
-	make
+	default_create
 
-feature -- Initialization
+feature {NONE} -- Initialization
 
-	make
-			-- Create a new instance
+	default_create
+			-- Create a new instance.
 		do
 			create to_json.make_empty
 		end
@@ -25,7 +28,7 @@ feature -- Initialization
 feature -- Access
 
 	to_json: STRING
-			-- JSON representation
+			-- JSON representation.
 
 feature -- Visitor Pattern
 
