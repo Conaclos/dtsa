@@ -1,5 +1,5 @@
 
 @NonNullByDefault
-package dtsa.mapped.base;
+package dtsa.mapped.client.response;
 
 import dtsa.util.annotation.NonNullByDefault;
