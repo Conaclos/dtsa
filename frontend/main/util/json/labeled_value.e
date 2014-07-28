@@ -25,10 +25,10 @@ feature {NONE} -- Implementation
 
 feature -- Access
 
-	label: READABLE_STRING_GENERAL
+	label: READABLE_STRING_8
 			-- Label attached to `value'.
 
-	value: READABLE_STRING_GENERAL
+	value: READABLE_STRING_8
 			-- Main content.
 
 end
