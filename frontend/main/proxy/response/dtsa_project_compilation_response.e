@@ -1,11 +1,11 @@
 note
-	description: "Response for a store request."
+	description: "Summary description for {DTSA_PROJECT_COMPILATION_RESPONSE}."
 	author: "Victorien Elvinger"
 	date: "$Date$"
 	revision: "$Revision$"
 
 class
-	DTSA_STORE_RESPONSE
+	DTSA_PROJECT_COMPILATION_RESPONSE
 
 inherit
 
@@ -27,7 +27,7 @@ feature {NONE} -- Creation
 
 feature -- Access
 
-	uri: READABLE_STRING_8
+	uri: READABLE_STRING_GENERAL
 			-- Stored entity URI.
 
 feature -- Processing
@@ -35,7 +35,7 @@ feature -- Processing
 	acept (a_visitor: DTSA_RESPONSE_VISITOR)
 			-- <Precursor>
 		do
-			a_visitor.visit_store (Current)
+
 		end
 
 end

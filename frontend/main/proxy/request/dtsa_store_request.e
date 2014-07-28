@@ -8,7 +8,13 @@ class
 	DTSA_STORE_REQUEST
 
 inherit
+
 	DTSA_REQUEST
+		export
+			{ANY} set_response, set_exception
+		redefine
+			response
+		end
 
 create
 	make
@@ -29,7 +35,7 @@ feature -- Access
 	response: detachable DTSA_STORE_RESPONSE
 			-- <Precursor>
 
-	path: PATH
+	path: READABLE_STRING_GENERAL
 			-- Path of the file or directory to store.
 
 	partial_twin: like Current
@@ -47,24 +53,12 @@ feature -- Status report
 				(same_type (l_other) and path ~ l_other.path)
 		end
 
-feature -- Change
-
-	set_response (a_response: attached like response)
-			-- Set `response' with `a_response'.
-		require
-			unspecified_response: response = Void
-		do
-			response := a_response
-		ensure
-			response_set: response = a_response
-		end
-
 feature -- Processing
 
-	process (a_visitor: DTSA_REQUEST_PROCESSOR)
+	acept (a_visitor: DTSA_REQUEST_VISITOR)
 			-- <Precursor>
 		do
-			a_visitor.process_store (Current)
+			a_visitor.visit_store (Current)
 		ensure then
 			responded: has_response
 		end
