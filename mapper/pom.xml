@@ -29,7 +29,7 @@
 						<configuration>
 							<transformers>
 								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>dtsa.mapped.base.Root</mainClass>
+									<mainClass>dtsa.mapper.base.Root</mainClass>
 								</transformer>
 							</transformers>
 						</configuration>
