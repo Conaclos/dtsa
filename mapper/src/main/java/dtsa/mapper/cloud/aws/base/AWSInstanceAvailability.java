@@ -1,5 +1,6 @@
 package dtsa.mapper.cloud.aws.base;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +24,7 @@ public class AWSInstanceAvailability
 	 * @param aTimeout - milliseconds between two status checking.
 	 */
 	public AWSInstanceAvailability (String aId, AmazonEC2Client aEc2, int aTimeout) {
+		super ();
 		id = new ArrayList <> (1);
 		id.add (aId);
 		ec2 = aEc2;
@@ -67,8 +69,12 @@ public class AWSInstanceAvailability
 		
 		if (status.equals (RunningStatus)) {
 			System.out.println ("Yes");
+			
 			isActive.set (false);
-			notifyAll ();
+			
+			lock.lock ();
+			isAvailable.signalAll ();
+			lock.unlock ();
 		}
 		else {
 			System.out.println ("Not yet");
