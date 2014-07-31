@@ -64,11 +64,32 @@ public class AWSInstanceAvailability
 	@Override
 	protected void process () {
 		String status = instanceStatus ();
+		Process p;
+		boolean ipReachable;
 		
 		System.out.println ("status : " + status);
 		
 		if (status.equals (RunningStatus)) {
-			System.out.println ("Yes");
+			try {
+				do {
+					System.out.println ("pending ip");
+					Thread.sleep (timeout);
+					
+					p = Runtime.getRuntime().exec("ping " + ip);
+					ipReachable = p.waitFor() == 0;
+				} while (! ipReachable);
+				
+				System.out.println ("before");
+				Thread.sleep (timeout * 10);
+			}
+			catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
 			isActive.set (false);
 			
@@ -77,7 +98,6 @@ public class AWSInstanceAvailability
 			lock.unlock ();
 		}
 		else {
-			System.out.println ("Not yet");
 			try {
 				Thread.sleep (timeout);
 			}
