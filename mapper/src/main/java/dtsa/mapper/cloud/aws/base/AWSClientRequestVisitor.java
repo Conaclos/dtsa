@@ -234,7 +234,7 @@ public class AWSClientRequestVisitor
 					}
 					
 					for (MappedProxy item : mappeds) {
-						item.write (new EchoMapperRequest (aVisited.getId (), aVisited.getHop ()));
+						item.write (new EchoMapperRequest (aVisited.getId (), aVisited.getHop () - 1));
 					}
 					
 					temp = null;
