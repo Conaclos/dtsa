@@ -59,25 +59,6 @@ public class LocalClientRequestVisitor
 			zip = new ZipFile (configuration.getWorkspace () + name);
 			zip.extractAll (configuration.getWorkspace ());
 			
-			/*s = String.format ("\"%s\" -project_path \"%s\" -config \"%s\" -target \"%s\" -c_compile -clean -freeze", 
-					configuration.getEc (),
-					configuration.getWorkspace () + aVisited.getProject (),
-					configuration.getWorkspace () + aVisited.getConfiguration (),
-					aVisited.getTarget ());
-			System.out.println (s);
-			runtime.exec (s);*/
-			/*
-			Process p = runtime.exec (new String [] {
-					configuration.getEc (),
-					"-project_path", configuration.getWorkspace () + aVisited.getProject (),
-					"-config", configuration.getWorkspace () + aVisited.getConfiguration (),
-					"-target", aVisited.getTarget (),
-					"-c_compile",
-					"-clean",
-					"-freeze"
-				});
-			System.out.println ("Next");
-			*/
 			
 			ProcessBuilder builder = new ProcessBuilder (configuration.getEc (),
 					"-project_path", configuration.getWorkspace () + aVisited.getProject (),
