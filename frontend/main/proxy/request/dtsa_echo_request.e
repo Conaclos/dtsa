@@ -34,14 +34,14 @@ feature {NONE} -- creation
 			-- Create with `a_id' as `id' and `hop' as `a_hop'.
 		do
 			id := a_id
-			if hop < Minimal_hop then
+			if a_hop < Minimal_hop then
 				hop := Minimal_hop
 			else
 				hop := a_hop
 			end
 		ensure
 			id_set: id = a_id
-			hop_set: (hop >= Minimal_hop implies hop = a_hop) and (hop < Minimal_hop implies hop = Minimal_hop)
+			hop_set: (a_hop >= Minimal_hop implies hop = a_hop) and (a_hop < Minimal_hop implies hop = Minimal_hop)
 		end
 
 feature -- Access
