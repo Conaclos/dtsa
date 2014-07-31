@@ -1,3 +1,8 @@
 
+Mapper
 * Improve exceptions for TypedRessource
 * Improve mapped proxy
+- improve availibily checker - for now one request by instance is sent
+
+Mapped
+* Add object retrivment from AWS API - Allow to keep private a bucket
