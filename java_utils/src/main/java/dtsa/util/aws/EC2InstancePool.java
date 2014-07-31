@@ -44,6 +44,7 @@ public class EC2InstancePool {
 		ips = new LinkedList <> ();
 		ids = new LinkedList <> ();
 		ec2 = aEc2;
+		ec2.setEndpoint ("ec2." + aConfiguration.getRegion () + ".amazonaws.com");
 		
 		assert ec2 == aEc2: "ensure: `ec2' set with `aEc2'";
 		assert imageId ().equals (aConfiguration.getImageId ()): "ensure: `imageId' set with  `aConfiguration.getImageId'";
