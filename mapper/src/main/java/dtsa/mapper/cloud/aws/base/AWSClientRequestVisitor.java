@@ -211,6 +211,7 @@ public class AWSClientRequestVisitor
 		ArrayList <MappedProxy> mappeds;
 		EchoServiceResponse response;
 		@Nullable Object temp;
+		AmazonEC2Client ec2;
 		MappedProxy mapped;
 		
 		if (aVisited.getHop () == 1) {
@@ -226,9 +227,10 @@ public class AWSClientRequestVisitor
 				try {
 					mappeds = new ArrayList <> (startingInstancesResponse.getIds ().size ());
 					for (String id : startingInstancesResponse.getIds ()) {
+						ec2 = new AmazonEC2Client (defaultCredentials ());
+						ec2.setEndpoint ("ec2." + configuration.getEc2 ().getRegion () + ".amazonaws.com");
 						mapped = factory.apply (serviceConfiguration.getPort (), 
-								new AWSInstanceAvailability (id, new AmazonEC2Client (defaultCredentials ()), 
-										5000));
+								new AWSInstanceAvailability (id, ec2, 5000));
 						mapped.start ();
 						mappeds.add (mapped);
 					}
