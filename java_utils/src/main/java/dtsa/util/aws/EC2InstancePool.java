@@ -194,7 +194,7 @@ public class EC2InstancePool {
 		Predicate <SecurityGroup> predicate;
 		IpPermission ipPermission;
 		
-		predicate = (SecurityGroup sg) -> sg.getGroupName ().equals (securityGroup);
+		predicate = (SecurityGroup sg) -> sg.getGroupName ().equals (securityGroup.getName ());
 		if (ec2.describeSecurityGroups ().getSecurityGroups ().stream ().noneMatch (predicate)) {
 			sgRequest = new CreateSecurityGroupRequest()
 					.withGroupName (securityGroup.getName ())
