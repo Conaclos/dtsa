@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import java.io.BufferedReader;
 
@@ -35,7 +38,10 @@ public class MappedProxy
 		availabilty = aAvailabilty;
 		listenerFactory = aListenerFactory;
 		writerFactory = aWriterFactory;
-		initializedCondition = new Object ();
+		
+		lock = new ReentrantLock ();
+		initializedCondition = lock.newCondition ();
+		
 	}
 	
 // Thread operation
@@ -112,20 +118,34 @@ public class MappedProxy
 	public void write (Request <? extends RequestVisitor> aObject) throws InterruptedException {
 		@Nullable ConvertibleObjectWriter <Request <? extends RequestVisitor>> localWriter;
 		
-		localWriter = writer;
-		while (localWriter == null) {
-			initializedCondition.wait ();
-			localWriter = writer;
-		}
+		lock.lock ();
 		
-		localWriter.write (aObject);
+		try {
+			localWriter = writer;
+			while (localWriter == null) {
+				initializedCondition.await ();
+				localWriter = writer;
+			}
+			
+			System.out.println ("writing");
+			
+			localWriter.write (aObject);
+		}
+		finally {
+			lock.unlock ();
+		}
 	}
 	
 // Implementation
 	/**
+	 * Lock
+	 */
+	protected Lock lock;
+	
+	/**
 	 * COndition variable for initialization.
 	 */
-	protected Object initializedCondition;
+	protected Condition initializedCondition;
 	
 	/**
 	 * Service port.
@@ -175,17 +195,24 @@ public class MappedProxy
 		}
 		
 		try {
+			System.out.println (availabilty.getIp () + ":" + port);
+			
 			localSocket = new Socket (availabilty.getIp (), port);
 			socket = localSocket;
 			listener = listenerFactory.apply (new BufferedReader (new InputStreamReader (localSocket.getInputStream ())));
 			writer = writerFactory.apply (new BufferedWriter (new OutputStreamWriter (localSocket.getOutputStream ())));
+			
 		}
 		catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		initializedCondition.notify ();
+		System.out.println ("available");
+		
+		lock.lock ();
+		initializedCondition.signalAll ();
+		lock.unlock ();
 	}
 	
 	@Override
