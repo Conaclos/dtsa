@@ -69,15 +69,6 @@ public class MappedProxy
 // Access
 	/**
 	 * Get and remove the oldest input.
-	 * If no input is available, then wait one until `aTimeout'.
-	 * @Concurrent
-	 * @SideEffect
-	 * 
-	 * @return Oldest input or null if `timeout' elapses before an input is available.
-	 */
-	
-	/**
-	 * Get and remove the oldest input.
 	 * Wait the initialization of the communication until `aInitailzedTimeout'.
 	 * ANd then if no input is available, then wait one until `aTimeout'.
 	 * 
