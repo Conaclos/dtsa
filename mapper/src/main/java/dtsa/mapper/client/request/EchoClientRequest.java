@@ -73,8 +73,7 @@ public class EchoClientRequest
 
 	@Override
 	public EchoClientRequest partialCLone () {
-		// TODO Auto-generated method stub
-		return new EchoClientRequest (id);
+		return new EchoClientRequest (id, hop);
 	}
 
 // Status
