@@ -42,6 +42,7 @@ public class MappedProxy
 		lock = new ReentrantLock ();
 		initializedCondition = lock.newCondition ();
 		
+		availabilty.start ();
 	}
 	
 // Thread operation
@@ -202,6 +203,8 @@ public class MappedProxy
 			listener = listenerFactory.apply (new BufferedReader (new InputStreamReader (localSocket.getInputStream ())));
 			writer = writerFactory.apply (new BufferedWriter (new OutputStreamWriter (localSocket.getOutputStream ())));
 			
+			listener.start ();
+			writer.start ();
 		}
 		catch (IOException e) {
 			// TODO Auto-generated catch block
