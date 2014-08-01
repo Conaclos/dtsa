@@ -1,6 +1,12 @@
 package dtsa.mapped.client.response;
 
-
+/**
+ * 
+ * @description 
+ * @author Victorien ELvinger
+ * @date 2014
+ *
+ */
 public class ProjectCompilationMappedResponse 
 	extends MappedResponse {
 
