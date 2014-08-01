@@ -6,9 +6,11 @@ import dtsa.mapped.back.local.base.LocalClientRequestVisitor;
 import dtsa.mapped.back.local.base.LocalConfiguration;
 import dtsa.mapped.client.request.ProjectCompilationClientRequest;
 import dtsa.mapped.client.request.EchoClientRequest;
+import dtsa.mapped.client.request.ProjectTestingClientRequest;
 import dtsa.mapped.client.response.EchoMappedResponse;
 import dtsa.mapped.client.response.MappedExceptionResponse;
 import dtsa.mapped.client.response.ProjectCompilationMappedResponse;
+import dtsa.mapped.client.response.ProjectTestingMappedResponse;
 import dtsa.util.json.LabeledJson2Request;
 import dtsa.util.json.LabeledJson2Response;
 import dtsa.util.json.Request2LabeledJson;
@@ -68,13 +70,13 @@ public class MappedApplication
 		// Client request and server response
 		json2Request = new LabeledJson2Request <> ();
 		json2Request.add ("echo", EchoClientRequest.class);
-		json2Request.add ("project_compilation", ProjectCompilationClientRequest.class);
+		json2Request.add ("compilation", ProjectCompilationClientRequest.class);
 		json2Request.add ("testing", ProjectTestingClientRequest.class);
 		mutableInjector.addComponent (json2Request);
 
 		response2Json = new Response2LabeledJson <> ();
 		response2Json.add ("echo", EchoMappedResponse.class);
-		response2Json.add ("project_compilation", ProjectCompilationMappedResponse.class);
+		response2Json.add ("compilation", ProjectCompilationMappedResponse.class);
 		response2Json.add ("testing", ProjectTestingMappedResponse.class);
 		response2Json.add ("exception", MappedExceptionResponse.class);
 		mutableInjector.addComponent (response2Json);
