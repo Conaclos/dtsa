@@ -66,7 +66,7 @@ public class MapperApplication
 		json2Request = new LabeledJson2Request <> ();
 		json2Request.add ("echo", EchoClientRequest.class);
 		json2Request.add ("store", StoreClientRequest.class);
-		json2Request.add ("startin_instances", StartingInstancesClientRequest.class);
+		json2Request.add ("starting_instances", StartingInstancesClientRequest.class);
 		mutableInjector.addComponent (json2Request);
 		
 		response2Json = new Response2LabeledJson <> ();
