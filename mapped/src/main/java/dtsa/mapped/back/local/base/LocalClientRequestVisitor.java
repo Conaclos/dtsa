@@ -15,8 +15,10 @@ import net.lingala.zip4j.exception.ZipException;
 import dtsa.mapped.client.request.ClientRequestVisitor;
 import dtsa.mapped.client.request.EchoClientRequest;
 import dtsa.mapped.client.request.ProjectCompilationClientRequest;
+import dtsa.mapped.client.request.ProjectTestingClientRequest;
 import dtsa.mapped.client.response.EchoMappedResponse;
 import dtsa.mapped.client.response.MappedExceptionResponse;
+import dtsa.mapped.client.response.ProjectCompilationMappedResponse;
 import dtsa.util.annotation.NonNull;
 
 public class LocalClientRequestVisitor
@@ -40,38 +42,44 @@ public class LocalClientRequestVisitor
 	public void visitProjectCompilation (ProjectCompilationClientRequest aVisited) {
 		String [] partitionedPath;
 		ReadableByteChannel rbc;
+		ProcessBuilder builder;
+		BufferedReader reader;
 		FileOutputStream fos;
 		ZipFile zip;
-		String name, s;
+		String name;
+		int exit;
 		URL uri;
-		
-		Runtime runtime = Runtime.getRuntime ();
 		
 		try {
 			uri = new URL (aVisited.getUri ());
 			partitionedPath = uri.getPath ().split ("/");
 			name = partitionedPath [partitionedPath.length - 1];
+			
 			/*
 			rbc = Channels.newChannel (uri.openStream ());
 			fos = new FileOutputStream (configuration.getWorkspace () + name);
 			fos.getChannel ().transferFrom (rbc, 0, Long.MAX_VALUE);
 			*/
+			
 			zip = new ZipFile (configuration.getWorkspace () + name);
 			zip.extractAll (configuration.getWorkspace ());
 			
-			
-			ProcessBuilder builder = new ProcessBuilder (configuration.getEc (),
+			builder = new ProcessBuilder (configuration.getEc (),
 					"-project_path", configuration.getWorkspace () + aVisited.getProject (),
 					"-config", configuration.getWorkspace () + aVisited.getConfiguration (),
 					"-target", aVisited.getTarget (),
 					"-c_compile", "-clean", "-freeze");
 			Process p = builder.start ();
 			
-			while (true) {
-				System.out.println (new BufferedReader (new InputStreamReader (p.getErrorStream ())).readLine ());
+			reader = new BufferedReader (new InputStreamReader (p.getErrorStream ()));
+			while (p.isAlive ()) {
+				System.out.println (reader.readLine ());
 			}
 			
-			// System.out.println ("finished");
+			exit = p.waitFor ();
+			System.out.println (exit);
+			
+			aVisited.setResponse (new ProjectCompilationMappedResponse (""));
 		}
 		catch (MalformedURLException | FileNotFoundException e) {
 			aVisited.setException (new MappedExceptionResponse (e));
@@ -87,6 +95,11 @@ public class LocalClientRequestVisitor
 			aVisited.setException (new MappedExceptionResponse (e));
 			// TODO Auto-generated catch block
 			e.printStackTrace ();
+		}
+		catch (InterruptedException e) {
+			aVisited.setException (new MappedExceptionResponse (e));
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
