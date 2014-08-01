@@ -16,6 +16,7 @@ public class ProjectCompilationClientRequest
 	/**
 	 * 
 	 * @param aUri - {@link #getUri()}
+	 * @param aProject - {@link #getProject()}
 	 * @param aConfiguration - {@link #getConfiguration()}
 	 * @param aTarget - {@link #getTarget ()}
 	 */
