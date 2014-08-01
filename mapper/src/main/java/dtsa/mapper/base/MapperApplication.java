@@ -11,9 +11,6 @@ import dtsa.mapper.client.response.StartingInstancesMapperResponse;
 import dtsa.mapper.client.response.MapperExceptionResponse;
 import dtsa.mapper.cloud.aws.base.AWSClientRequestVisitor;
 import dtsa.mapper.cloud.mapped.base.DefaultMappedProxyFactory;
-import dtsa.mapper.cloud.mapped.request.EchoMapperRequest;
-import dtsa.mapper.cloud.mapped.request.ProjectCompilationMapperRequest;
-import dtsa.mapper.cloud.mapped.response.EchoServiceResponse;
 import dtsa.util.communication.base.Request;
 import dtsa.util.communication.base.RequestVisitor;
 import dtsa.util.communication.base.Response;
@@ -81,12 +78,16 @@ public class MapperApplication
 		
 		// Server request and Service response
 		request2Json = new Request2LabeledJson <> ();
-		request2Json.add ("echo", EchoMapperRequest.class);
-		request2Json.add ("compilation", ProjectCompilationMapperRequest.class);
+		request2Json.add ("echo", dtsa.mapped.client.request.EchoClientRequest.class);
+		request2Json.add ("compilation", dtsa.mapped.client.request.ProjectCompilationClientRequest.class);
+		request2Json.add ("testing", dtsa.mapped.client.request.ProjectTestingClientRequest.class);
 		mutableInjector.addComponent (request2Json);
 		
 		json2Response = new LabeledJson2Response <> ();
-		json2Response.add ("echo", EchoServiceResponse.class);
+		json2Response.add ("echo", dtsa.mapped.client.response.EchoMappedResponse.class);
+		json2Response.add ("compilation", dtsa.mapped.client.response.ProjectCompilationMappedResponse.class);
+		json2Response.add ("testing", dtsa.mapped.client.response.ProjectTestingMappedResponse.class);
+		response2Json.add ("exception", dtsa.mapped.client.response.MappedExceptionResponse.class);
 		mutableInjector.addComponent (json2Response);
 		
 		// Extra configurations

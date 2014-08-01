@@ -18,9 +18,6 @@ import dtsa.mapper.client.response.StartingInstancesMapperResponse;
 import dtsa.mapper.client.response.StoreMapperResponse;
 import dtsa.mapper.cloud.mapped.base.MappedProxy;
 import dtsa.mapper.cloud.mapped.base.MappedProxyFactory;
-import dtsa.mapper.cloud.mapped.request.EchoMapperRequest;
-import dtsa.mapper.cloud.mapped.request.ProjectCompilationMapperRequest;
-import dtsa.mapper.cloud.mapped.response.EchoServiceResponse;
 import dtsa.util.annotation.NonNull;
 import dtsa.util.annotation.Nullable;
 import dtsa.util.aws.AWS;
@@ -31,6 +28,8 @@ import dtsa.util.configuration.UnmatchableTypeException;
 import dtsa.util.configuration.UnparsableException;
 import dtsa.util.file.DirectoryCompressionException;
 import dtsa.util.file.UnreachablePathException;
+import dtsa.mapped.client.request.ProjectCompilationClientRequest;
+import dtsa.mapped.client.response.EchoMappedResponse;
 
 /**
  * 
@@ -171,7 +170,7 @@ public class AWSClientRequestVisitor
 				}
 				
 				for (MappedProxy item : mappeds) {
-					item.write (new ProjectCompilationMapperRequest (aVisited.getUri (), aVisited.getProject (),
+					item.write (new ProjectCompilationClientRequest (aVisited.getUri (), aVisited.getProject (),
 							aVisited.getConfiguration (), aVisited.getTarget ()));
 				}
 				
@@ -209,7 +208,7 @@ public class AWSClientRequestVisitor
 		StartingInstancesClientRequest startingInstances;
 		@Nullable MapperExceptionResponse exception;
 		ArrayList <MappedProxy> mappeds;
-		EchoServiceResponse response;
+		EchoMappedResponse response;
 		@Nullable Object temp;
 		AmazonEC2Client ec2;
 		MappedProxy mapped;
@@ -236,7 +235,7 @@ public class AWSClientRequestVisitor
 					}
 					
 					for (MappedProxy item : mappeds) {
-						item.write (new EchoMapperRequest (aVisited.getId (), aVisited.getHop () - 1));
+						item.write (new dtsa.mapped.client.request.EchoClientRequest (aVisited.getId (), aVisited.getHop () - 1));
 					}
 					
 					temp = null;
@@ -244,8 +243,8 @@ public class AWSClientRequestVisitor
 						temp = item.maybeNext (120000, 1800);
 					}
 					
-					if (temp != null && temp.getClass () == EchoServiceResponse.class) {
-						response = (EchoServiceResponse) temp;
+					if (temp != null && temp.getClass () == EchoMappedResponse.class) {
+						response = (EchoMappedResponse) temp;
 						aVisited.setResponse (new EchoMapperResponse (response.getId ()));
 					}
 					else {

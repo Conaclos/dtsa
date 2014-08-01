@@ -47,6 +47,12 @@
 			<version>0.1</version>
 			<scope>compile</scope>
 		</dependency>
+		<dependency>
+			<groupId>dtsa</groupId>
+			<artifactId>mapped</artifactId>
+			<version>0.1</version>
+			<scope>compile</scope>
+		</dependency>
 		
 		<!-- External and compilation dependencies -->
 		<dependency>
