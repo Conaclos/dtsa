@@ -17,6 +17,15 @@ public interface ClientRequestVisitor
 	public abstract void visitProjectCompilation (ProjectCompilationClientRequest aVisited);
 	
 	/**
+	 * Handle `aVisited'
+	 * 
+	 * @pattern visitor
+	 * 
+	 * @param aVisited - request to processs.
+	 */
+	public abstract void visitProjectTesting (ProjectTestingClientRequest aVisited);
+	
+	/**
 	 * Handle `aVisited'.
 	 * @pattern Visitor
 	 * 

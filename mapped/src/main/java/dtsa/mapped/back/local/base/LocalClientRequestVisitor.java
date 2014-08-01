@@ -95,6 +95,12 @@ public class LocalClientRequestVisitor
 		aVisited.setResponse (new EchoMappedResponse (aVisited.getId ()));
 		System.out.println ("answering");
 	}
+
+	@Override
+	public void visitProjectTesting (@NonNull ProjectTestingClientRequest aVisited) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 // Implementation
 	/**

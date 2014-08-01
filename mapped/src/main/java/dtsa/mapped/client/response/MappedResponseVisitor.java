@@ -14,6 +14,14 @@ public abstract interface MappedResponseVisitor
 	 * @param aVisited - response to process.
 	 */
 	public abstract void visitProjectCompilation (ProjectCompilationMappedResponse aVisited);
+	/**
+	 * Handle `aVisited'.
+	 * 
+	 * @pattern Visitor
+	 * 
+	 * @param aVisited - response to process.
+	 */
+	public abstract void visitProjectTesting (ProjectTestingMappedResponse aVisited);
 	
 	/**
 	 * Handle `aVisited'.

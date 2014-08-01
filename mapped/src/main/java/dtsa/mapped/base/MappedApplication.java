@@ -69,11 +69,13 @@ public class MappedApplication
 		json2Request = new LabeledJson2Request <> ();
 		json2Request.add ("echo", EchoClientRequest.class);
 		json2Request.add ("project_compilation", ProjectCompilationClientRequest.class);
+		json2Request.add ("testing", ProjectTestingClientRequest.class);
 		mutableInjector.addComponent (json2Request);
 
 		response2Json = new Response2LabeledJson <> ();
 		response2Json.add ("echo", EchoMappedResponse.class);
 		response2Json.add ("project_compilation", ProjectCompilationMappedResponse.class);
+		response2Json.add ("testing", ProjectTestingMappedResponse.class);
 		response2Json.add ("exception", MappedExceptionResponse.class);
 		mutableInjector.addComponent (response2Json);
 		
