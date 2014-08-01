@@ -1,14 +1,11 @@
 package dtsa.mapper.client.request;
 
-import java.util.ArrayList;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import dtsa.mapper.client.response.MapperExceptionResponse;
 import dtsa.mapper.client.response.ProjectTestingMapperResponse;
 import dtsa.util.annotation.Nullable;
-import dtsa.util.communication.base.Request;
 import dtsa.util.communication.base.Response;
 import dtsa.util.communication.base.ResponseVisitor;
 
@@ -16,7 +13,7 @@ public class ProjectTestingClientRequest
 		extends ClientRequest {
 	
 // Creation
-	public ProjectTestingClientRequest (String aUri, String aProject, String aConfiguration, String aTarget, ArrayList <ArrayList <String>> aClusters) {
+	public ProjectTestingClientRequest (String aUri, String aProject, String aConfiguration, String aTarget, String [][] aClusters) {
 		
 		uri = aUri;
 		project = aProject;
@@ -36,7 +33,7 @@ public class ProjectTestingClientRequest
 	@JsonCreator
 	public ProjectTestingClientRequest (@JsonProperty ("uri") String aUri, @JsonProperty ("project") String aProject, 
 			@JsonProperty ("configuration") String aConfiguration, @JsonProperty ("target") String aTarget, 
-			@JsonProperty ("timeout") long aTimeout, @JsonProperty ("clusters") ArrayList <ArrayList <String>> aClusters) {
+			@JsonProperty ("timeout") long aTimeout, @JsonProperty ("clusters") String [][] aClusters) {
 		
 		uri = aUri;
 		project = aProject;
@@ -102,8 +99,9 @@ public class ProjectTestingClientRequest
 	
 	/**
 	 * @return Class clusters.
+	 * Null means one testing session for all classes.
 	 */
-	public ArrayList <ArrayList <String>> getClusters () {
+	public @Nullable String [][] getClusters () {
 		return clusters;
 	}
 	
@@ -122,7 +120,7 @@ public class ProjectTestingClientRequest
 			
 			result = timeout == temp.getTimeout () && target.equals (temp.getTarget ()) &&
 					uri.equals (temp.getUri ()) && configuration.equals (temp.getConfiguration ()) &&
-					((clusters != null && temp.getClusters () != null && clusters.equals (temp.getClusters ())) || clusters == temp.getClusters ());
+					clusters == temp.getClusters ();
 		}
 		else {
 			result = false;
@@ -198,6 +196,6 @@ public class ProjectTestingClientRequest
 	/**
 	 * @see #getClusters ()
 	 */
-	protected @Nullable ArrayList <ArrayList <String>> clusters;
+	protected @Nullable String [][] clusters;
 	
 }

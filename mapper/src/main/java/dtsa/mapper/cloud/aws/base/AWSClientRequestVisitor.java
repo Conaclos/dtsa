@@ -138,7 +138,7 @@ public class AWSClientRequestVisitor
 	
 	@Override
 	public void visitProjectTesting (@NonNull ProjectTestingClientRequest aVisited) {
-		@Nullable Collection <? extends Object> groups;
+		@Nullable String [][] groups;
 		@Nullable StartingInstancesMapperResponse startingInstancesResponse;
 		@Nullable MapperExceptionResponse exception;
 		StartingInstancesClientRequest startingInstances;
@@ -148,7 +148,7 @@ public class AWSClientRequestVisitor
 		
 		groups = aVisited.getClusters ();
 		if (groups != null) {
-			instanceCount = groups.size ();
+			instanceCount = groups.length;
 		}
 		else {
 			instanceCount = 1;
