@@ -2,12 +2,14 @@ package dtsa.mapper.base;
 
 import org.picocontainer.MutablePicoContainer;
 
+import dtsa.mapper.client.request.DistributedProjectTestingClientRequest;
 import dtsa.mapper.client.request.EchoClientRequest;
 import dtsa.mapper.client.request.StoreClientRequest;
 import dtsa.mapper.client.request.StartingInstancesClientRequest;
 import dtsa.mapper.client.response.EchoMapperResponse;
 import dtsa.mapper.client.response.StoreMapperResponse;
 import dtsa.mapper.client.response.StartingInstancesMapperResponse;
+import dtsa.mapper.client.response.DistributedProjectTestingMapperResponse;
 import dtsa.mapper.client.response.MapperExceptionResponse;
 import dtsa.mapper.cloud.aws.base.AWSClientRequestVisitor;
 import dtsa.mapper.cloud.mapped.base.DefaultMappedProxyFactory;
@@ -67,12 +69,14 @@ public class MapperApplication
 		json2Request.add ("echo", EchoClientRequest.class);
 		json2Request.add ("store", StoreClientRequest.class);
 		json2Request.add ("starting_instances", StartingInstancesClientRequest.class);
+		json2Request.add ("distributed_testing", DistributedProjectTestingClientRequest.class);
 		mutableInjector.addComponent (json2Request);
 		
 		response2Json = new Response2LabeledJson <> ();
 		response2Json.add ("echo", EchoMapperResponse.class);
 		response2Json.add ("store", StoreMapperResponse.class);
 		response2Json.add ("starting_instances", StartingInstancesMapperResponse.class);
+		response2Json.add ("distributed_testing", DistributedProjectTestingMapperResponse.class);
 		response2Json.add ("exception", MapperExceptionResponse.class);
 		mutableInjector.addComponent (response2Json);
 		
