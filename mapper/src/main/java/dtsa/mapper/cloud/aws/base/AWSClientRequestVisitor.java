@@ -136,7 +136,7 @@ public class AWSClientRequestVisitor
 	}
 	
 	@Override
-	public void visitProjectTesting (@NonNull ProjectTestingClientRequest aVisited) {
+	public void visitProjectTesting (DistributedProjectTestingClientRequest aVisited) {
 		@Nullable String [][] groups;
 		@Nullable StartingInstancesMapperResponse startingInstancesResponse;
 		@Nullable MapperExceptionResponse exception;
