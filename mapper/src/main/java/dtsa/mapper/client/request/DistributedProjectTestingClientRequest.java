@@ -4,16 +4,16 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import dtsa.mapper.client.response.MapperExceptionResponse;
-import dtsa.mapper.client.response.ProjectTestingMapperResponse;
+import dtsa.mapper.client.response.DistributedProjectTestingMapperResponse;
 import dtsa.util.annotation.Nullable;
 import dtsa.util.communication.base.Response;
 import dtsa.util.communication.base.ResponseVisitor;
 
-public class ProjectTestingClientRequest
+public class DistributedProjectTestingClientRequest
 		extends ClientRequest {
 	
 // Creation
-	public ProjectTestingClientRequest (String aUri, String aProject, String aConfiguration, String aTarget, String [][] aClusters) {
+	public DistributedProjectTestingClientRequest (String aUri, String aProject, String aConfiguration, String aTarget, String [][] aClusters) {
 		
 		uri = aUri;
 		project = aProject;
@@ -31,7 +31,7 @@ public class ProjectTestingClientRequest
 	}
 	
 	@JsonCreator
-	public ProjectTestingClientRequest (@JsonProperty ("uri") String aUri, @JsonProperty ("project") String aProject, 
+	public DistributedProjectTestingClientRequest (@JsonProperty ("uri") String aUri, @JsonProperty ("project") String aProject, 
 			@JsonProperty ("configuration") String aConfiguration, @JsonProperty ("target") String aTarget, 
 			@JsonProperty ("timeout") long aTimeout, @JsonProperty ("clusters") String [][] aClusters) {
 		
@@ -106,8 +106,8 @@ public class ProjectTestingClientRequest
 	}
 	
 	@Override
-	public ProjectTestingClientRequest partialCLone () {
-		return new ProjectTestingClientRequest (uri, project, configuration, target, timeout, clusters);
+	public DistributedProjectTestingClientRequest partialCLone () {
+		return new DistributedProjectTestingClientRequest (uri, project, configuration, target, timeout, clusters);
 	}
 	
 // Status
@@ -116,7 +116,7 @@ public class ProjectTestingClientRequest
 		boolean result;
 		
 		if (getClass () == aOther.getClass ()) {
-			ProjectTestingClientRequest temp = (ProjectTestingClientRequest) aOther;
+			DistributedProjectTestingClientRequest temp = (DistributedProjectTestingClientRequest) aOther;
 			
 			result = timeout == temp.getTimeout () && target.equals (temp.getTarget ()) &&
 					uri.equals (temp.getUri ()) && configuration.equals (temp.getConfiguration ()) &&
@@ -136,7 +136,7 @@ public class ProjectTestingClientRequest
 	 * Set `response' with `aResponse'
 	 * @param aResponse - response of this current request.
 	 */
-	public void setResponse (ProjectTestingMapperResponse aResponse) {
+	public void setResponse (DistributedProjectTestingMapperResponse aResponse) {
 		assert ! hasException (): "require: has not exception.";
 		
 		response = aResponse;
@@ -166,7 +166,7 @@ public class ProjectTestingClientRequest
 	/**
 	 * @see #response ()
 	 */
-	protected @Nullable ProjectTestingMapperResponse response;
+	protected @Nullable DistributedProjectTestingMapperResponse response;
 	
 	/**
 	 * @see #getUri ()

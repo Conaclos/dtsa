@@ -3,7 +3,7 @@ package dtsa.mapper.client.base;
 import dtsa.mapper.client.response.EchoMapperResponse;
 import dtsa.mapper.client.response.MapperExceptionResponse;
 import dtsa.mapper.client.response.MapperResponseVisitor;
-import dtsa.mapper.client.response.ProjectTestingMapperResponse;
+import dtsa.mapper.client.response.DistributedProjectTestingMapperResponse;
 import dtsa.mapper.client.response.StoreMapperResponse;
 import dtsa.util.annotation.NonNull;
 
@@ -17,7 +17,7 @@ public class MockMapperResponseVisitor
 	}
 
 	@Override
-	public void visitProjectTesting (@NonNull ProjectTestingMapperResponse aVisited) {
+	public void visitProjectTesting (@NonNull DistributedProjectTestingMapperResponse aVisited) {
 		// TODO Auto-generated method stub
 		
 	}

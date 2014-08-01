@@ -30,7 +30,7 @@ public abstract interface ClientRequestVisitor
 	 * 
 	 * @param aVisited - request to process.
 	 */
-	public abstract void visitProjectTesting (ProjectTestingClientRequest aVisited);
+	public abstract void visitProjectTesting (DistributedProjectTestingClientRequest aVisited);
 	
 	/**
 	 * Handle `aVisited'.

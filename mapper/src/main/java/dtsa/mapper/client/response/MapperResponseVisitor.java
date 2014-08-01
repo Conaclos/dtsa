@@ -25,7 +25,7 @@ public abstract interface MapperResponseVisitor
 	 * @param aVisited
 	 *            - response to process.
 	 */
-	public abstract void visitProjectTesting (ProjectTestingMapperResponse aVisited);
+	public abstract void visitProjectTesting (DistributedProjectTestingMapperResponse aVisited);
 	
 	/**
 	 * 

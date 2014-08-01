@@ -1,7 +1,13 @@
 package dtsa.mapper.client.response;
 
-
-public class ProjectTestingMapperResponse 
+/**
+ * 
+ * @description 
+ * @author Victorien ELvinger
+ * @date 2014
+ *
+ */
+public class DistributedProjectTestingMapperResponse 
 	extends MapperResponse {
 
 	@Override

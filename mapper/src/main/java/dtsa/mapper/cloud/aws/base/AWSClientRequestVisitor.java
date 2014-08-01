@@ -9,7 +9,7 @@ import com.amazonaws.services.ec2.AmazonEC2Client;
 import dtsa.mapper.base.ServiceConfiguration;
 import dtsa.mapper.client.request.ClientRequestVisitor;
 import dtsa.mapper.client.request.EchoClientRequest;
-import dtsa.mapper.client.request.ProjectTestingClientRequest;
+import dtsa.mapper.client.request.DistributedProjectTestingClientRequest;
 import dtsa.mapper.client.request.StartingInstancesClientRequest;
 import dtsa.mapper.client.request.StoreClientRequest;
 import dtsa.mapper.client.response.EchoMapperResponse;
