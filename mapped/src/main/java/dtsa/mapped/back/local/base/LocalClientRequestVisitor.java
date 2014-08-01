@@ -46,8 +46,7 @@ public class LocalClientRequestVisitor
 		BufferedReader reader;
 		FileOutputStream fos;
 		ZipFile zip;
-		String name;
-		int exit;
+		String name, line;
 		URL uri;
 		
 		try {
@@ -71,15 +70,13 @@ public class LocalClientRequestVisitor
 					"-c_compile", "-clean", "-freeze");
 			Process p = builder.start ();
 			
+			line = "";
 			reader = new BufferedReader (new InputStreamReader (p.getErrorStream ()));
-			while (p.isAlive ()) {
-				System.out.println (reader.readLine ());
+			while (! line.equals ("System Recompiled.")) {
+				line = reader.readLine ();
 			}
 			
-			exit = p.waitFor ();
-			System.out.println (exit);
-			
-			aVisited.setResponse (new ProjectCompilationMappedResponse (""));
+			aVisited.setResponse (new ProjectCompilationMappedResponse (configuration.getWorkspace ()));
 		}
 		catch (MalformedURLException | FileNotFoundException e) {
 			aVisited.setException (new MappedExceptionResponse (e));
@@ -95,11 +92,6 @@ public class LocalClientRequestVisitor
 			aVisited.setException (new MappedExceptionResponse (e));
 			// TODO Auto-generated catch block
 			e.printStackTrace ();
-		}
-		catch (InterruptedException e) {
-			aVisited.setException (new MappedExceptionResponse (e));
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 
