@@ -31,16 +31,28 @@ public class ProjectTestingClientRequest
 		project = aProject;
 		configuration = aConfiguration;
 		target = aTarget;
-		timeout = aTimeout;
 		classes = aClasses;
+		if (aTimeout > 0) {
+			timeout = aTimeout;
+		}
+		else {
+			timeout = DefaultTimeout;
+		}
 
 		assert getUri () == aUri: "ensure: `getUri' set with `aUri'";
 		assert getProject () == aProject: "ensure: `getProject' set with `aProject'";
 		assert getConfiguration () == aConfiguration: "ensure: `getConfiguration' set with `aConfiguration'";
 		assert getTarget () == aTarget: "ensure: `getTarget' set with `aTarget'";
-		assert getTimeout () == aTimeout: "ensure:  `getTimeout' set with `aTimeout'";
+		assert aTimeout <= 0 || getTimeout () == aTimeout: "ensure:  `getTimeout' set with `aTimeout' if `aTimeout' is strictly positive";
+		assert aTimeout > 0 || getTimeout () == DefaultTimeout: "ensure:  `getTimeout' set with `DefaultTimeout' if `aTimeout' is negative";
 		assert getClasses () == aClasses: "ensure: `getClasses' set with `aClasses'";
 	}
+	
+// Constant
+	/**
+	 * Default timeout.
+	 */
+	public final static int DefaultTimeout = 20;
 	
 // Access
 	@Override
