@@ -44,6 +44,15 @@ feature -- Processing
 			has_response: a_visited.has_response xor a_visited.has_exception
 		end
 
+	visit_distributed_project_testing (a_visited: DTSA_DISTRIBUTED_PROJECT_TESTING_REQUEST)
+			-- Visit `a_visited'.
+		note
+			design_pattern: "visitor"
+		deferred
+		ensure
+			has_response: a_visited.has_response xor a_visited.has_exception
+		end
+
 	visit_echo (a_visited: DTSA_ECHO_REQUEST)
 			-- Visit `a_visited'.
 		note
