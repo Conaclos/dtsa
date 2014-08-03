@@ -50,7 +50,14 @@ public class DistributedProjectTestingClientRequest
 		assert getUri () == aUri: "ensure:  `getUri' set with `aUri'";
 	}
 	
-// Access	
+// Constant
+	/**
+	 * Default timeout.
+	 */
+	public final static int DefaultTimeout = 20;
+	
+	
+// Access
 	@Override
 	public @Nullable Response <? extends ResponseVisitor> response () {
 		// TODO Auto-generated method stub
@@ -84,11 +91,6 @@ public class DistributedProjectTestingClientRequest
 	public String getTarget () {
 		return target;
 	}
-	
-	/**
-	 * Default timeout.
-	 */
-	public final static int DefaultTimeout = 20;
 	
 	/**
 	 * @return Time for testing.
