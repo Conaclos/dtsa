@@ -21,33 +21,33 @@ create
 
 feature {NONE} -- cReation
 
-	make_with_timeout (a_uri, a_project, a_configuration, a_target: READABLE_STRING_8; a_clusters: like clusters; a_timeout: like timeout)
+	make_with_timeout (a_uri, a_project, a_configuration, a_target: READABLE_STRING_8; a_classes: like classes; a_timeout: like timeout)
 		do
 			uri := a_uri
 			project := a_project
 			configuration := a_configuration
 			target := a_target
-			clusters := a_clusters
+			classes := a_classes
 			timeout := a_timeout
 		ensure
 			uri_set: uri = a_uri
 			project_set: project = a_project
 			configuration_set: configuration = a_configuration
-			clusters_set: clusters = a_clusters
+			clusters_set: classes = a_classes
 			target_set: target = a_target
 			timeout_set: timeout = a_timeout
 		end
 
-	make (a_uri, a_configuration, a_project, a_target: READABLE_STRING_8; a_clusters: like clusters)
+	make (a_uri, a_configuration, a_project, a_target: READABLE_STRING_8; a_classes: like classes)
 			-- Create a project testing request with a default timeout.
 		do
-			make_with_timeout (a_uri, a_project, a_configuration, a_target, clusters, Default_timeout)
+			make_with_timeout (a_uri, a_project, a_configuration, a_target, classes, Default_timeout)
 		ensure
 			uri_set: uri = a_uri
 			project_set: project = a_project
 			configuration_set: configuration = a_configuration
 			timeout_set_default: timeout = Default_timeout
-			clusters_set: clusters = a_clusters
+			clusters_set: classes = a_classes
 			target_set: target = a_target
 		end
 
@@ -71,17 +71,17 @@ feature -- Access
 	Default_timeout: like timeout = 20
 			-- Default timeout.
 
-	timeout: INTEGER_32
+	timeout: INTEGER_8
 			-- Time for testing in minutes.
 
-	clusters: detachable ARRAYED_LIST [ARRAYED_LIST [STRING]]
-			-- Class clusters.
-			-- Void means no clusters.
+	classes: detachable ARRAYED_LIST [READABLE_STRING_8]
+			-- Classes under test.
+			-- Void means all classes.
 
 	partial_twin: like Current
 			-- <Precursor>
 		do
-			create Result.make_with_timeout (uri, project, configuration, target, clusters, timeout)
+			create Result.make_with_timeout (uri, project, configuration, target, classes, timeout)
 		end
 
 feature -- Status report
