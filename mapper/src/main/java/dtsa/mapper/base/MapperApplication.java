@@ -91,7 +91,7 @@ public class MapperApplication
 		json2Response.add ("echo", dtsa.mapped.client.response.EchoMappedResponse.class);
 		json2Response.add ("compilation", dtsa.mapped.client.response.ProjectCompilationMappedResponse.class);
 		json2Response.add ("testing", dtsa.mapped.client.response.ProjectTestingMappedResponse.class);
-		response2Json.add ("exception", dtsa.mapped.client.response.MappedExceptionResponse.class);
+		json2Response.add ("exception", dtsa.mapped.client.response.MappedExceptionResponse.class);
 		mutableInjector.addComponent (json2Response);
 		
 		// Extra configurations
