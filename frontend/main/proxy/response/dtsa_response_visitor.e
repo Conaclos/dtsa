@@ -23,6 +23,18 @@ feature -- Processing
 			design_pattern: "visitor"
 		deferred end
 
+	visit_project_compilation (a_visited: DTSA_PROJECT_COMPILATION_RESPONSE)
+			-- Visit `a_visited'.
+		note
+			design_pattern: "visitor"
+		deferred end
+
+	visit_project_testing (a_visited: DTSA_PROJECT_TESTING_RESPONSE)
+			-- Visit `a_visited'.
+		note
+			design_pattern: "visitor"
+		deferred end
+
 	visit_distributed_project_testing (a_visited: DTSA_DISTRIBUTED_PROJECT_TESTING_RESPONSE)
 			-- Visit `a_visited'.
 		note

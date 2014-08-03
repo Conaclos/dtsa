@@ -35,7 +35,7 @@ feature -- Processing
 	acept (a_visitor: DTSA_RESPONSE_VISITOR)
 			-- <Precursor>
 		do
-
+			a_visitor.visit_project_testing (Current)
 		end
 
 end
