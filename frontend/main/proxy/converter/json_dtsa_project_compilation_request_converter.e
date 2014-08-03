@@ -1,6 +1,6 @@
 note
 	description: "Summary description for {JSON_DTSA_PROJECT_COMPILATION_CONVERTER}."
-	author: ""
+	author: "Victorien Elvinger"
 	date: "$Date$"
 	revision: "$Revision$"
 
