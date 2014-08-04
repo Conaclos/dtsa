@@ -6,3 +6,6 @@ Mapper
 
 Mapped
 * Add object retrivment from AWS API - Allow to keep private a bucket
+
+All
+* Setup loggers
