@@ -30,7 +30,6 @@ public class LocalClientRequestVisitor
 	public LocalClientRequestVisitor (LocalConfiguration aConfiguration) {
 		configuration = aConfiguration;
 		logger = Logger.getLogger (getClass ().getName ());
-		logger.setLevel (Level.INFO);
 		
 		assert configuration == aConfiguration: "esnure:  `configuration' set with `aConfiguration'";
 	}
