@@ -48,8 +48,9 @@ public class LocalClientRequestVisitor
 		ProcessBuilder builder;
 		BufferedReader reader;
 		FileOutputStream fos;
-		ZipFile zip;
 		String name, line;
+		ZipFile zip;
+		Process p;
 		URL uri;
 		
 		try {
@@ -71,7 +72,8 @@ public class LocalClientRequestVisitor
 					"-config", configuration.getWorkspace () + aVisited.getConfiguration (),
 					"-target", aVisited.getTarget (),
 					"-c_compile", "-clean", "-freeze");
-			Process p = builder.start ();
+			p = builder.start ();
+			
 			logger.info ("Command: " + Arrays.toString (new String [] {configuration.getEc (),
 					"-project_path", configuration.getWorkspace () + aVisited.getProject (),
 					"-config", configuration.getWorkspace () + aVisited.getConfiguration (),
@@ -79,10 +81,13 @@ public class LocalClientRequestVisitor
 					"-c_compile", "-clean", "-freeze"}).replace (",", ""));
 			
 			line = "";
-			reader = new BufferedReader (new InputStreamReader (p.getErrorStream ()));
-			while (! line.equals ("System Recompiled.")) {
+			reader = new BufferedReader (new InputStreamReader (p.getErrorStream ()));			
+			do {
+				logger.info (line);
 				line = reader.readLine ();
-			}
+			} while (line != null && ! line.equals ("System Recompiled."));
+			
+			p.destroy ();
 			
 			aVisited.setResponse (new ProjectCompilationMappedResponse (configuration.getWorkspace ()));
 		}
