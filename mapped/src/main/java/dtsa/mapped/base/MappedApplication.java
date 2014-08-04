@@ -1,5 +1,8 @@
 package dtsa.mapped.base;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.picocontainer.MutablePicoContainer;
 
 import dtsa.mapped.back.local.base.LocalClientRequestVisitor;
@@ -51,6 +54,7 @@ public class MappedApplication
 		Request2LabeledJson <Request <? extends RequestVisitor>> request2Json;
 		LabeledJson2Response <Response <? extends ResponseVisitor>> json2Response;
 		LocalConfiguration localConfig;
+		Logger logger;
 		
 		mutableInjector = super.defaultDependencyInjector ();
 		
@@ -84,6 +88,11 @@ public class MappedApplication
 		
 		mutableInjector.addComponent (LocalClientRequestVisitor.class);
 		mutableInjector.addComponent (MockMappedResponseVisitor.class);
+		
+		// Logger
+		logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+		logger.setLevel (Level.INFO);
+		
 		
 		return mutableInjector;
 	}

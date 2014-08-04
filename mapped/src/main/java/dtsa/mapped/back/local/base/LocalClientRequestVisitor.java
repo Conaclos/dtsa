@@ -20,6 +20,8 @@ import dtsa.mapped.client.response.EchoMappedResponse;
 import dtsa.mapped.client.response.MappedExceptionResponse;
 import dtsa.mapped.client.response.ProjectCompilationMappedResponse;
 import dtsa.util.annotation.NonNull;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class LocalClientRequestVisitor
 		implements ClientRequestVisitor {
@@ -27,6 +29,8 @@ public class LocalClientRequestVisitor
 // Creation
 	public LocalClientRequestVisitor (LocalConfiguration aConfiguration) {
 		configuration = aConfiguration;
+		logger = Logger.getLogger (getClass ().getName ());
+		logger.setLevel (Level.INFO);
 		
 		assert configuration == aConfiguration: "esnure:  `configuration' set with `aConfiguration'";
 	}
@@ -69,6 +73,11 @@ public class LocalClientRequestVisitor
 					"-target", aVisited.getTarget (),
 					"-c_compile", "-clean", "-freeze");
 			Process p = builder.start ();
+			logger.info ("Command: " + Arrays.toString (new String [] {configuration.getEc (),
+					"-project_path", configuration.getWorkspace () + aVisited.getProject (),
+					"-config", configuration.getWorkspace () + aVisited.getConfiguration (),
+					"-target", aVisited.getTarget (),
+					"-c_compile", "-clean", "-freeze"}).replace (",", ""));
 			
 			line = "";
 			reader = new BufferedReader (new InputStreamReader (p.getErrorStream ()));
@@ -112,5 +121,10 @@ public class LocalClientRequestVisitor
 	 * Local configuration.
 	 */
 	protected LocalConfiguration configuration;
+	
+	/**
+	 * Logger.
+	 */
+	protected Logger logger;
 	
 }
