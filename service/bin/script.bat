@@ -45,10 +45,10 @@ set CG_STARTUP_TYPE=auto
 set CG_PATH_TO_JVM="C:\Program Files\Java\jre8\bin\server\jvm.dll"
 
 ::---- Set other options via environment variables, just as an example -------
-set PR_DESCRIPTION=test1
+set PR_DESCRIPTION=dtsa
 set PR_LOGPATH=%APPLICATION_SERVICE_HOME%\logs
 set PR_CLASSPATH=%APPLICATION_SERVICE_HOME%;%CG_PATH_TO_JAR_CONTAINING_SERVICE%
-set PR_DISPLAYNAME=TestService
+set PR_DISPLAYNAME=%SERVICE_NAME%
 
 
 if "%1" == "" goto displayUsage
