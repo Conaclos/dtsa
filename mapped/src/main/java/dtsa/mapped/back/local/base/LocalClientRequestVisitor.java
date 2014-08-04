@@ -9,6 +9,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.util.Arrays;
 
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
@@ -19,7 +20,8 @@ import dtsa.mapped.client.request.ProjectTestingClientRequest;
 import dtsa.mapped.client.response.EchoMappedResponse;
 import dtsa.mapped.client.response.MappedExceptionResponse;
 import dtsa.mapped.client.response.ProjectCompilationMappedResponse;
-import dtsa.util.annotation.NonNull;
+import dtsa.mapped.client.response.ProjectTestingMappedResponse;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -115,9 +117,87 @@ public class LocalClientRequestVisitor
 	}
 
 	@Override
-	public void visitProjectTesting (@NonNull ProjectTestingClientRequest aVisited) {
-		// TODO Auto-generated method stub
+	public void visitProjectTesting (ProjectTestingClientRequest aVisited) {
+		ProjectCompilationClientRequest compilation;
+		ProjectCompilationMappedResponse compilationResponse;
+		ProcessBuilder builder;
+		BufferedReader reader;
+		String line, classes;
+		Process p;
 		
+		compilation = new ProjectCompilationClientRequest (aVisited.getUri (), aVisited.getProject (), aVisited.getConfiguration (), aVisited.getTarget ());
+		visitProjectCompilation (compilation);
+		compilationResponse = compilation.response ();
+		
+		assert aVisited.getTimeout () > 0: "check: timeout is strictly positive.";
+
+		classes = "";
+		for (String item : aVisited.getClasses ()) {
+			classes = classes + item + " ";
+		}
+		classes = classes.substring (0, classes.length () - 1);
+		
+		builder = new ProcessBuilder (configuration.getEc (), 
+				"-project_path", configuration.getWorkspace () + aVisited.getProject (), 
+				"-config", configuration.getWorkspace () + aVisited.getConfiguration (), 
+				"-target", aVisited.getTarget (), 
+				"-auto_test", 
+				"-i", 
+				"-f", 
+				"--agents", "none", 
+				"-t", "" + aVisited.getTimeout (), 
+				"--state", "argumentless", 
+				"--serialization", "FAILING",
+				classes);
+		
+		logger.info (Arrays.toString (new String [] {configuration.getEc (), 
+			"-project_path", configuration.getWorkspace () + aVisited.getProject (), 
+			"-config", configuration.getWorkspace () + aVisited.getConfiguration (), 
+			"-target", aVisited.getTarget (), 
+			"-auto_test", 
+			"-i", 
+			"-f", 
+			"--agents", "none", 
+			"-t", "" + aVisited.getTimeout (), 
+			"--state", "argumentless", 
+			"--serialization", "FAILING", 
+			classes}).replace (",", ""));
+		
+		try {
+			p = builder.start ();
+			
+			// Eiffel instrumentation
+			line = "";
+			reader = new BufferedReader (new InputStreamReader (p.getErrorStream ()));			
+			do {
+				logger.info (line);
+				line = reader.readLine ();
+			} while (line != null && ! line.equals ("Degree -1: Generating Code"));
+			
+			// C compilation
+			line = "";
+			reader = new BufferedReader (new InputStreamReader (p.getInputStream ()));
+			do {
+				logger.info (line);
+				line = reader.readLine ();
+			} while (line != null && ! line.equals ("C compilation completed"));
+			
+			// AutoTest execution
+			line = "";
+			reader = new BufferedReader (new InputStreamReader (p.getErrorStream ()));			
+			do {
+				logger.info (line);
+				line = reader.readLine ();
+			} while (line != null);
+			
+			p.destroy ();
+			
+			aVisited.setResponse (new ProjectTestingMappedResponse (configuration.getWorkspace ()));
+		}
+		catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 // Implementation
