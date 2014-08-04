@@ -4,3 +4,4 @@ mapper/target/
 mapped/target/
 
 **/*.rc
+**/*.log
