@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -21,15 +23,25 @@ import dtsa.mapped.client.response.EchoMappedResponse;
 import dtsa.mapped.client.response.MappedExceptionResponse;
 import dtsa.mapped.client.response.ProjectCompilationMappedResponse;
 import dtsa.mapped.client.response.ProjectTestingMappedResponse;
+import dtsa.util.aws.AWS;
+import dtsa.util.aws.AWSConfiguration;
+import dtsa.util.aws.MalFormedS3ObjectURIException;
+import dtsa.util.aws.S3ObjectURI;
+import dtsa.util.configuration.UnmatchableTypeException;
+import dtsa.util.configuration.UnparsableException;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.amazonaws.AmazonServiceException;
+
 public class LocalClientRequestVisitor
+		extends AWS
 		implements ClientRequestVisitor {
 	
 // Creation
-	public LocalClientRequestVisitor (LocalConfiguration aConfiguration) {
+	public LocalClientRequestVisitor (AWSConfiguration aAWSConfiguration, LocalConfiguration aConfiguration) {
+		super (aAWSConfiguration);
 		configuration = aConfiguration;
 		logger = Logger.getLogger (getClass ().getName ());
 		
@@ -50,24 +62,42 @@ public class LocalClientRequestVisitor
 		ProcessBuilder builder;
 		BufferedReader reader;
 		FileOutputStream fos;
-		String name, line;
+		String name, line, workspace;
+		S3ObjectURI object;
 		ZipFile zip;
 		Process p;
-		URL uri;
+		URI uri;
+		URL url;
 		
 		try {
-			uri = new URL (aVisited.getUri ());
-			partitionedPath = uri.getPath ().split ("/");
-			name = partitionedPath [partitionedPath.length - 1];
-			
-			/*
-			rbc = Channels.newChannel (uri.openStream ());
-			fos = new FileOutputStream (configuration.getWorkspace () + name);
-			fos.getChannel ().transferFrom (rbc, 0, Long.MAX_VALUE);
-			*/
-			
-			zip = new ZipFile (configuration.getWorkspace () + name);
-			zip.extractAll (configuration.getWorkspace ());
+			if (aVisited.getUri ().startsWith (S3ObjectURI.protocol)) {
+				object = new S3ObjectURI (aVisited.getUri ());
+				// TODO get object
+				name = object.getId ();
+				workspace = configuration.getWorkspace ();
+				
+				zip = new ZipFile (configuration.getWorkspace () + name);
+				zip.extractAll (configuration.getWorkspace ());
+			}
+			else {
+				url = new URL (aVisited.getUri ());
+				partitionedPath = url.getPath ().split ("/");
+				name = partitionedPath [partitionedPath.length - 1];
+				
+				if (url.getProtocol ().equals ("file")) {
+					workspace = url.getPath ();
+				}
+				else {
+					workspace = configuration.getWorkspace ();
+					
+					rbc = Channels.newChannel (url.openStream ());
+					fos = new FileOutputStream (configuration.getWorkspace () + name);
+					fos.getChannel ().transferFrom (rbc, 0, Long.MAX_VALUE);
+					
+					zip = new ZipFile (configuration.getWorkspace () + name);
+					zip.extractAll (configuration.getWorkspace ());
+				}
+			}
 			
 			builder = new ProcessBuilder (configuration.getEc (),
 					"-project_path", configuration.getWorkspace () + aVisited.getProject (),
@@ -93,7 +123,7 @@ public class LocalClientRequestVisitor
 			
 			aVisited.setResponse (new ProjectCompilationMappedResponse (configuration.getWorkspace ()));
 		}
-		catch (MalformedURLException | FileNotFoundException e) {
+		catch (FileNotFoundException e) {
 			aVisited.setException (new MappedExceptionResponse (e));
 			// TODO Auto-generated catch block
 			e.printStackTrace ();
@@ -107,6 +137,16 @@ public class LocalClientRequestVisitor
 			aVisited.setException (new MappedExceptionResponse (e));
 			// TODO Auto-generated catch block
 			e.printStackTrace ();
+		}
+		catch (MalFormedS3ObjectURIException e) {
+			aVisited.setException (new MappedExceptionResponse (e));
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (AmazonServiceException e) {
+			aVisited.setException (new MappedExceptionResponse (e));
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 

@@ -18,6 +18,7 @@ import dtsa.util.json.LabeledJson2Request;
 import dtsa.util.json.LabeledJson2Response;
 import dtsa.util.json.Request2LabeledJson;
 import dtsa.util.json.Response2LabeledJson;
+import dtsa.util.aws.AWSConfiguration;
 import dtsa.util.communication.base.Request;
 import dtsa.util.communication.base.RequestVisitor;
 import dtsa.util.communication.base.Response;
@@ -42,6 +43,11 @@ public class MappedApplication
 	 */
 	public final static String LocalConfiguration = "local.json";
 	
+	/**
+	 * AWS configuration filename.
+	 */
+	public final static String AWSConfiguration = "aws.json";
+	
 // Implementation	
 	/**
 	 * Default dependency injector.
@@ -54,6 +60,7 @@ public class MappedApplication
 		Request2LabeledJson <Request <? extends RequestVisitor>> request2Json;
 		LabeledJson2Response <Response <? extends ResponseVisitor>> json2Response;
 		LocalConfiguration localConfig;
+		AWSConfiguration awsConfig;
 		Logger logger;
 		
 		mutableInjector = super.defaultDependencyInjector ();
@@ -61,6 +68,9 @@ public class MappedApplication
 		try {
 			localConfig = configurations.labeled (LocalConfiguration, LocalConfiguration.class);
 			mutableInjector.addComponent (localConfig);
+			
+			awsConfig = configurations.labeled (AWSConfiguration, AWSConfiguration.class);
+			mutableInjector.addComponent (awsConfig);
 		}
 		catch (UnparsableException e) {
 			// TODO Auto-generated catch block
@@ -91,7 +101,7 @@ public class MappedApplication
 		
 		// Logger
 		logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-		logger.setLevel (Level.INFO);
+		logger.setLevel (Level.FINER);
 		
 		
 		return mutableInjector;
