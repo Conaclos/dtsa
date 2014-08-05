@@ -82,7 +82,16 @@ public class S3Bucket
 	 * @throws AmazonServiceException
 	 */
 	public String createURI (String aName) throws AmazonServiceException {
-		return s3.generatePresignedUrl (new GeneratePresignedUrlRequest (id, aName)).toString ();
+		String result;
+		
+		if (isPublic) {
+			result = s3.generatePresignedUrl (new GeneratePresignedUrlRequest (id, aName)).toString ();
+		}
+		else {
+			result = (new S3ObjectURI (id, aName)).toString ();
+		}
+		
+		return result;
 	}
 	
 // Change (remote and local)
