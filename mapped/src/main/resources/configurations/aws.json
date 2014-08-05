@@ -3,7 +3,7 @@
 	"s3": {
 		"bucket": "dtsa",
 		"region": "eu-west-1",
-		"access": "private"
+		"isPublic": false
 	},
 	"ec2": {
 		"imageId": "ami-4518d032",

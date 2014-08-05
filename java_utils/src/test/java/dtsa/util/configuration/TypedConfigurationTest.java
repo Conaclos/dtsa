@@ -51,7 +51,7 @@ public class TypedConfigurationTest {
 		S3BucketConfiguration config3 = config1.getS3 ();
 		assertEquals ("same bucket name", config3.getBucket (), "dtsa");
 		assertEquals ("same region", config3.getRegion (), "eu-west-1");
-		assertEquals ("same access visibility", config3.getAccess (), "private");
+		assertEquals ("same access visibility", config3.isPublic (), false);
 	}
 	
 	@Test (expected = UnmatchableTypeException.class)

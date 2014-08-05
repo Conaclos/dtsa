@@ -53,7 +53,7 @@ public class S3Bucket
 	public S3Bucket (S3BucketConfiguration aConfiguration, AmazonS3Client aS3) throws AmazonServiceException {
 		super (aConfiguration.getBucket ());
 		location = aConfiguration.getRegion ();
-		access = aConfiguration.getAccess ();
+		isPublic = aConfiguration.isPublic ();
 		s3 = aS3;
 		if (! s3.doesBucketExist (id)) {
 			s3.createBucket (id, location);
@@ -61,7 +61,7 @@ public class S3Bucket
 		
 		assert id == aConfiguration.getBucket (): "ensure: `name' set with `aName'";
 		assert s3 == aS3: "ensure: `s3' set with `aS3'";
-		assert access == aConfiguration.getAccess (): "ensure: `access' set with `aAccess'";
+		assert isPublic == aConfiguration.isPublic (): "ensure: `access' set with `aAccess'";
 		assert location == aConfiguration.getRegion (): "ensure: `location' set with `aLocation'";
 	}
 	
@@ -181,10 +181,7 @@ public class S3Bucket
 		PutObjectRequest objectRequest;
 		CannedAccessControlList permission;
 		
-		if (access == null) {
-			permission = CannedAccessControlList.Private;
-		}
-		else if (access.equals ("public")) {
+		if (isPublic) {
 			permission = CannedAccessControlList.PublicRead;
 		}
 		else {
@@ -248,6 +245,6 @@ public class S3Bucket
 	 * Access permission for future stored files.
 	 * Null means private.
 	 */
-	protected final @Nullable String access;
+	protected final boolean isPublic;
 	
 }

@@ -26,17 +26,16 @@ public class S3BucketConfiguration {
 	@JsonCreator
 	@Requires ({
 		"aBucket != null",
-		"aRegion != null",
-		"aAccess != null"
+		"aRegion != null"
 	})
 	@Ensures ({
 		"getBucket () == aBucket",
 		"getRegion () == aRegion",
-		"getAccess () == aAccess"
+		"isPublic () == aIsPublic"
 	})
 	public S3BucketConfiguration (@JsonProperty ("bucket") String aBucket, 
 			@JsonProperty ("region") String aRegion, 
-			@JsonProperty ("access") String aAccess) {
+			@JsonProperty ("isPublic") boolean aIsPublic) {
 		
 		if (aBucket == null) {
 			throw new IllegalArgumentException ("'bucket' should be not null");
@@ -44,17 +43,14 @@ public class S3BucketConfiguration {
 		else if (aRegion == null) {
 			throw new IllegalArgumentException ("'region' should be not null");
 		}
-		else if (aAccess == null) {
-			throw new IllegalArgumentException ("'access' should be not null");
-		}
 		
 		bucket = aBucket;
 		region = aRegion;
-		access = aAccess;
+		isPublic = aIsPublic;
 		
 		assert getBucket () == aBucket: "ensure: `getBucket' set with `aBucket'.";
 		assert getRegion () == aRegion: "ensure: `getRegion' set with `aRegion'.";
-		assert getAccess () == aAccess: "ensure: `getAccess' set with `aAccess'.";
+		assert isPublic () == aIsPublic: "ensure: `getAccess' set with `aIsPublic'.";
 	}
 	
 // Access
@@ -75,8 +71,8 @@ public class S3BucketConfiguration {
 	/**
 	 * @return Bucket visibility.
 	 */
-	public String getAccess () {
-		return access;
+	public boolean isPublic () {
+		return isPublic;
 	}
 	
 // Implementation
@@ -91,8 +87,8 @@ public class S3BucketConfiguration {
 	protected String region;
 	
 	/**
-	 * @see #getAccess ()
+	 * @see #isPublic ()
 	 */
-	protected String access;
+	protected boolean isPublic;
 	
 }
