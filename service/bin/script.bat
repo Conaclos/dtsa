@@ -1,6 +1,7 @@
 @echo off
 ::---------------------------------------------
 ::- Author: Ulrich Palha
+::- Modifier: Victorien Elvinger
 ::- Date: 11/14/2011
 ::- http://www.ulrichpalha.com
 ::---------------------------------------------
@@ -44,6 +45,10 @@ set CG_STARTUP_TYPE=auto
 ::-- 7. Set this if you want to use a different JVM than configured in your registry, or if it is not configured in windows registry
 set CG_PATH_TO_JVM="C:\Program Files\Java\jre8\bin\server\jvm.dll"
 
+::-- 8. Set this for stdout and stderror log redirection
+set CG_STDOUT_REDIRECTION_PATH=auto
+set CG_STDERROR_REDIRECTION_PATH=auto
+
 ::---- Set other options via environment variables, just as an example -------
 set PR_DESCRIPTION=dtsa
 set PR_LOGPATH=%APPLICATION_SERVICE_HOME%\logs
@@ -84,6 +89,9 @@ set EXECUTE_STRING= "%EXECUTABLE%" //US//%SERVICE_NAME% --StartParams %CG_START_
 call:executeAndPrint %EXECUTE_STRING%
 
 set EXECUTE_STRING= "%EXECUTABLE%" //US//%SERVICE_NAME% ++JvmOptions "-Djava.io.tmpdir=%APPLICATION_SERVICE_HOME%\temp;" --JvmMs 128 --JvmMx 256
+call:executeAndPrint %EXECUTE_STRING%
+
+set EXECUTE_STRING= "%EXECUTABLE%" //US//%SERVICE_NAME% --StdOutput %CG_STDOUT_REDIRECTION_PATH% --StdError %CG_STDERROR_REDIRECTION_PATH%
 call:executeAndPrint %EXECUTE_STRING%
 
 echo. 
