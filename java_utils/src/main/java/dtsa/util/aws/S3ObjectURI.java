@@ -15,13 +15,16 @@ public class S3ObjectURI {
 // Creation
 	/**
 	 * 
+	 * @param aLocation - {@link #getLocation ()}
 	 * @param aName - {@link #getName ()}
 	 * @param aId - {@link #getId ()}
 	 */
-	public S3ObjectURI (String aName, String aId) {
+	public S3ObjectURI (String aLocation, String aName, String aId) {
+		location = aLocation;
 		name = aName;
 		id = aId;
 		
+		assert getLocation () == aLocation: "ensure: `getName' set with `aName'";
 		assert getName () == aName: "ensure: `getName' set with `aName'";
 		assert getId () == aId: "ensure: `getId' set with `aId'";
 	}
@@ -35,8 +38,9 @@ public class S3ObjectURI {
 		Pattern p = Pattern.compile (regex);
 		Matcher m = p.matcher (aCandidate);
 		if (m.find ()) {
-			name = m.group (1);
-			id = m.group (2);
+			location = m.group (1);
+			name = m.group (2);
+			id = m.group (3);
 		}
 		else {
 			throw new MalFormedS3ObjectURIException (aCandidate);
@@ -52,14 +56,21 @@ public class S3ObjectURI {
 	/**
 	 * URI pattern.
 	 */
-	public final static String scheme = protocol + "://%s#%s";
+	public final static String scheme = protocol + "://%s/%s#%s";
 
 	/**
 	 * URI regex.
 	 */
-	public final static String regex = protocol + "://(\\w+)#(\\w+)";
-		
+	public final static String regex = protocol + "://([-\\.\\w]+)/([-\\.\\w]+)#([-\\.\\w]+)";
+	
 // Access
+	/**
+	 * @return Bucket location.
+	 */
+	public String getLocation () {
+		return location;
+	}
+	
 	/**
 	 * @return Bucket Name.
 	 */
@@ -76,10 +87,15 @@ public class S3ObjectURI {
 	
 	@Override
 	public String toString () {
-		return String.format (scheme, name, id);
+		return String.format (scheme, location, name, id);
 	}
 	
 // Implementation
+	/**
+	 * @see #getLocation ()
+	 */
+	protected String location;
+	
 	/**
 	 * @see #getName ()
 	 */

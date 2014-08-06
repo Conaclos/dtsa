@@ -11,7 +11,6 @@ import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
 
-import dtsa.util.annotation.Nullable;
 import dtsa.util.file.DirectoryCompressionException;
 import dtsa.util.file.Store;
 import dtsa.util.file.UnreachableObjectException;
@@ -76,7 +75,7 @@ public class S3Bucket
 			result = s3.generatePresignedUrl (new GeneratePresignedUrlRequest (id, aName)).toString ();
 		}
 		else {
-			result = (new S3ObjectURI (id, aName)).toString ();
+			result = (new S3ObjectURI (location, id, aName)).toString ();
 		}
 		
 		return result;

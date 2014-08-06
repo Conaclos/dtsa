@@ -17,7 +17,7 @@ public class MalFormedS3ObjectURIException
 	 * @param aStoreId - {@link #getCandidate()}
 	 */
 	public MalFormedS3ObjectURIException (String aCandidate) {
-		super (String.format (message, aCandidate, (new S3ObjectURI ("bucket", "object")).toString ()));
+		super (String.format (message, aCandidate, (new S3ObjectURI ("region", "bucket", "object")).toString ()));
 		candidate = aCandidate;
 		
 		assert getCandidate () == aCandidate: "ensure: `getCandidate' set with `aCandidate'";
