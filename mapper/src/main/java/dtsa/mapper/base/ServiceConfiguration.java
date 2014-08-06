@@ -2,8 +2,6 @@ package dtsa.mapper.base;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Requires;
 
 /**
  * 
@@ -21,12 +19,6 @@ public class ServiceConfiguration {
 	 *            - {@link #getPort()}
 	 */
 	@JsonCreator
-	@Requires ({
-		"1024 <= aPort && aPort <= 65555"
-	})
-	@Ensures ({
-		"getPort () == aPort"
-	})
 	public ServiceConfiguration (@JsonProperty ("port") int aPort) {
 		
 		assert 1024 <= aPort && aPort <= 65555: "require: `aPort' is an assignable port.";
@@ -45,7 +37,6 @@ public class ServiceConfiguration {
 	 * 
 	 * @return Server port.
 	 */
-	@Ensures ("result != null")
 	public int getPort () {
 		return port;
 	}
