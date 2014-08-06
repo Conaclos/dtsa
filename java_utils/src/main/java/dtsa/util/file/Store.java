@@ -226,7 +226,7 @@ public abstract class Store {
 	
 // Change (local)
 	/**
-	 * Store `aName' locally to `aPath'
+	 * Store `aName' locally to `aPath'.
 	 * 
 	 * @param aName - entity name
 	 * @param aPath - local directory
