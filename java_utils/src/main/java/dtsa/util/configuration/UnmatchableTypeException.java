@@ -1,8 +1,5 @@
 package dtsa.util.configuration;
 
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Requires;
-
 /**
  * 
  * @description Exception for unmatchable type with the object.
@@ -21,14 +18,6 @@ public class UnmatchableTypeException
 	 * @param aType
 	 *            - {@link #getType ()}
 	 */
-	@Requires ({
-		"aResourcePath != null",
-		"aType != null"
-	})
-	@Ensures ({
-		"getResourcePath () == aResourcePath",
-		"getType () == aType"
-	})
 	public UnmatchableTypeException (String aResourcePath, Class <?> aType) {
 		super (String.format (message, aResourcePath, aType.getName ()));
 		
@@ -55,7 +44,6 @@ public class UnmatchableTypeException
 	 * 
 	 * @return Path of the resource, relative to 'resources' directory.
 	 */
-	@Ensures ("result != null")
 	public String getResourcePath () {
 		return resourcePath;
 	}
@@ -64,7 +52,6 @@ public class UnmatchableTypeException
 	 * 
 	 * @return Type expected of the resource.
 	 */
-	@Ensures ("result != null")
 	public Class <?> getType () {
 		return type;
 	}

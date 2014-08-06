@@ -3,9 +3,6 @@ package dtsa.util.communication.writer;
 import java.io.BufferedWriter;
 import java.io.IOException;
 
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Requires;
-
 import dtsa.util.communication.converter.Object2String;
 
 
@@ -13,14 +10,6 @@ public class ConvertibleObjectWriter <G>
 	extends OutputWriter <G> {
 	
 // Creation
-	@Requires ({
-		"aInput != null",
-		"aConverter != null"
-	})
-	@Ensures ({
-		"out == aOutput",
-		"converter == aConverter"
-	})
 	public ConvertibleObjectWriter (BufferedWriter aOutput, Object2String <G> aConverter) {		
 		super (20);
 		

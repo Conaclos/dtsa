@@ -17,7 +17,6 @@ import com.amazonaws.services.ec2.model.KeyPair;
 import com.amazonaws.services.ec2.model.RunInstancesRequest;
 import com.amazonaws.services.ec2.model.RunInstancesResult;
 import com.amazonaws.services.ec2.model.SecurityGroup;
-import com.google.java.contract.Requires;
 
 import dtsa.util.annotation.Nullable;
 
@@ -31,11 +30,6 @@ import dtsa.util.annotation.Nullable;
 public class EC2InstancePool {
 	
 // Creation
-	
-	@Requires ({
-		"aConfiguration != null",
-		"aEc2 != null"
-	})
 	public EC2InstancePool (EC2InstanceConfiguration aConfiguration, AmazonEC2 aEc2) {
 		securityGroup = aConfiguration.getSecurityGroup ();
 		instanceType = aConfiguration.getInstanceType ();

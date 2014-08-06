@@ -1,8 +1,5 @@
 package dtsa.util.json;
 
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Requires;
-
 /**
  * 
  * @description Invalid JSON value.
@@ -20,14 +17,6 @@ public class InvalidJSONException
 	 * @param aJson - Invalid JSON value.
 	 * @param aType - Type expected.
 	 */
-	@Requires ({
-		"aJson != null",
-		"aType != null"
-	})
-	@Ensures ({
-		"getJson () == aJson",
-		"getType () == aType"
-	})
 	public InvalidJSONException (String aJson, String aType) {		
 		super (String.format (message, aJson, aType));
 		json = aJson;
@@ -52,7 +41,6 @@ public class InvalidJSONException
 	/**
 	 * @return Invalid JSON value.
 	 */
-	@Ensures ("result != null")
 	public String getJson () {
 		return json;
 	}
@@ -60,7 +48,6 @@ public class InvalidJSONException
 	/**
 	 * @return Type expected.
 	 */
-	@Ensures ("result != null")
 	public String getType () {
 		return type;
 	}

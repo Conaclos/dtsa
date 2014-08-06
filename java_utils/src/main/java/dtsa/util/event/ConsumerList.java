@@ -3,10 +3,6 @@ package dtsa.util.event;
 import java.util.LinkedList;
 import java.util.function.Consumer;
 
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Invariant;
-import com.google.java.contract.Requires;
-
 /**
  * @description Consumer sequence. USe for event handling.
  * @author Victorien Elvinger
@@ -14,18 +10,12 @@ import com.google.java.contract.Requires;
  *
  * @param <T> - Type of data to consume
  */
-@Invariant ({
-	"size () >= 0",
-	"isEmpty () == (size () == 0)",
-	"representation != null && representation.stream ().allMatch ((Object o) -> o != null)"
-})
 public class ConsumerList <T> {
 	
 // Creation
 	/**
 	 * Create an empty consumer list
 	 */
-	@Ensures ("isEmpty ()")
 	public ConsumerList () {
 		representation = new LinkedList <> ();
 		
@@ -53,8 +43,6 @@ public class ConsumerList <T> {
 	 * Add a new action.
 	 * @param aConsumer - action.
 	 */
-	@Requires ("aConsumer != null")
-	@Ensures ("size() == (old(size ()) + 1)")
 	public synchronized void add (Consumer<T> aConsumer) {
 		representation.add (aConsumer);
 		

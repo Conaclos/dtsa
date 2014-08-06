@@ -1,8 +1,5 @@
 package dtsa.util.file;
 
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Requires;
-
 /**
  * 
  * @description Exception for unreachable object on a store.
@@ -20,14 +17,6 @@ public class UnreachableObjectException
 	 * @param aName - {@link #getName()}
 	 * @param aStoreId - {@link #getStoreId()}
 	 */
-	@Requires ({
-		"aName != null",
-		"aStoreId != null"
-	})
-	@Ensures ({
-		"getName () == aName",
-		"getStoreId () == aStoreId"
-	})
 	public UnreachableObjectException (String aName, String aStoreId) {
 		super (String.format (message, aName, aStoreId));
 		name = aName;
@@ -52,7 +41,6 @@ public class UnreachableObjectException
 	/**
 	 * @return Unreachable object's name.
 	 */
-	@Ensures ("result != null")
 	public String getName () {
 		return name;
 	}

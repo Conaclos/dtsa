@@ -4,9 +4,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Requires;
-
 import dtsa.util.annotation.Nullable;
 
 /**
@@ -26,7 +23,6 @@ public class DefaultClientListener
 	 * @param aPort
 	 *            - acceptable port
 	 */
-	@Requires ("1024 <= aPort && aPort <= 65555")
 	public DefaultClientListener (int aPort) {
 		this (aPort, aPort);
 	}
@@ -38,11 +34,6 @@ public class DefaultClientListener
 	 * @param aUpperPort
 	 *            - upper acceptable port
 	 */
-	@Requires ({
-		"1024 <= aLowerPort && aLowerPort <= 65555",
-		"1024 <= aUpperPort && aUpperPort <= 65555",
-		"aLowerPort <= aUpperPort"
-	})
 	public DefaultClientListener (int aLowerPort, int aUpperPort) {
 		super (MaximumPendingClients);
 		
@@ -90,8 +81,6 @@ public class DefaultClientListener
 	 *            - acceptable port
 	 * @return socket attached to `aPort' if `aPort' is available
 	 */
-	@Requires ("1024 <= aPort && aPort <= 65555")
-	@Ensures ("result == null || result.getLocalPort () == aPort")
 	protected @Nullable ServerSocket maybeSocketOn (int aPort) {
 		assert 1024 <= aPort && aPort <= 65555: "require: `aPort' is an assignable port.";
 		
@@ -116,12 +105,6 @@ public class DefaultClientListener
 	 *            - upper acceptable port
 	 * @return socket attached to a port between `aLowerPort' and `aUpperPort' if available.
 	 */
-	@Requires ({
-		"1024 <= aLowerPort && aLowerPort <= 65555",
-		"1024 <= aUpperPort && aUpperPort <= 65555",
-		"aLowerPort <= aUpperPort"
-	})
-	@Ensures ("result == null || aLowerPort <= result.getLocalPort () && result.getLocalPort () <= aUpperPort")
 	protected @Nullable ServerSocket maybeSocketBetween (int aLowerPort, int aUpperPort) {
 		assert 1024 <= aLowerPort && aLowerPort <= 65555: "require: `aLowerPort' is an assignable port.";
 		assert 1024 <= aUpperPort && aUpperPort <= 65555: "require: `aUpperPort' is an assignable port.";

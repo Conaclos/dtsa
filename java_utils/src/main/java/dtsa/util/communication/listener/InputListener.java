@@ -4,8 +4,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import com.google.java.contract.Ensures;
-
 import dtsa.util.annotation.Nullable;
 import dtsa.util.communication.base.RepeatableTask;
 
@@ -53,7 +51,6 @@ public abstract class InputListener <I>
 	 * 
 	 * @return Oldest input.
 	 */
-	@Ensures ("result != null")
 	public I next () throws InterruptedException {
 		return queue.take ();
 	}

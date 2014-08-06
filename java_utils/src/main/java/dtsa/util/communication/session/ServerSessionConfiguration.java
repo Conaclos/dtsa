@@ -2,8 +2,6 @@ package dtsa.util.communication.session;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Requires;
 
 /**
  * 
@@ -21,11 +19,6 @@ public class ServerSessionConfiguration {
 	 * @param aConcurrent
 	 */
 	@JsonCreator
-	@Requires ("aTimeout > 0")
-	@Ensures ({
-		"getTimeout () == aTimeout",
-		"isConcurrent () == aConcurrent"
-	})
 	public ServerSessionConfiguration (@JsonProperty ("timeout") int aTimeout, @JsonProperty ("concurrent") boolean aConcurrent) {
 		assert aTimeout > 0: "require: `aTimeout > 0' strictly positive";
 		
@@ -45,7 +38,6 @@ public class ServerSessionConfiguration {
 	 * This time should be chosen according to the value of `isConcurrent'
 	 * @return Time in seconds to wait a new request.
 	 */
-	@Ensures ("result != null")
 	public int getTimeout () {
 		return timeout;
 	}
@@ -54,7 +46,6 @@ public class ServerSessionConfiguration {
 	 * 
 	 * @return Is request and response processing concurrent?
 	 */
-	@Ensures ("result != null")
 	public boolean isConcurrent () {
 		return concurrent;
 	}

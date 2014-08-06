@@ -2,9 +2,6 @@ package dtsa.util.communication.session;
 
 import java.net.Socket;
 
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Requires;
-
 import dtsa.util.annotation.Nullable;
 import dtsa.util.annotation.ReadOnly;
 import dtsa.util.communication.base.Request;
@@ -34,20 +31,6 @@ public class DefaultServerSession
 	 * @param aResponseProcessors - visitors of responses
 	 * @param aListener - request listener
 	 */
-	@Requires ({
-		"aSocket != null",
-		"aLogger != null",
-		"aRequestProcessors != null",
-		"aResponseProcessors != null",
-		"aListener != null"
-	})
-	@Ensures ({
-		"requestProcessors == aRequestProcessors",
-		"responseProcessors == aResponseProcessors",
-		"listener == aListener",
-		"isConcurrent == aClientConfiguration.isConcurrent ()",
-		"timeout == aClientConfiguration.getTimeout ()"
-	})
 	public DefaultServerSession (Socket aSocket, Logger aLogger, ServerSessionConfiguration aClientConfiguration,
 			ConvertibleObjectListener <Request <? extends RequestVisitor>> aListener, ConvertibleObjectWriter <Response <? extends ResponseVisitor>> aWwriter, 
 			RequestVisitor [] aRequestProcessors, ResponseVisitor [] aResponseProcessors) {

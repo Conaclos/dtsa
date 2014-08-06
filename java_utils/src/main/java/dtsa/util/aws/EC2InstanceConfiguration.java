@@ -2,8 +2,6 @@ package dtsa.util.aws;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Requires;
 
 /**
  * 
@@ -22,18 +20,6 @@ public class EC2InstanceConfiguration {
 	 * @param securityGroup - {@link #getSecurityGroup()}
 	 * @param region - {@link #getRegion()}
 	 */
-	@Requires ({
-		"aImageId != null",
-		"aInstanceType != null",
-		"aSecurityGroup != null",
-		"aRegion != null"
-	})
-	@Ensures ({
-		"getImageId () == aImageId",
-		"getInstanceType () == aInstanceType",
-		"getSecurityGroup () == aSecurityGroup",
-		"getRegion () == aRegion"
-	})
 	@JsonCreator
 	public EC2InstanceConfiguration (@JsonProperty ("imageId") String aImageId, 
 			@JsonProperty ("instanceType")  String aInstanceType, @JsonProperty ("securityGroup") SecuryGroupConfiguration aSecurityGroup, 
@@ -68,7 +54,6 @@ public class EC2InstanceConfiguration {
 	 * Note: take care of the region.
 	 * @return Instance image id.
 	 */
-	@Ensures ("result != null")
 	public String getImageId () {
 		return imageId;
 	}
@@ -76,7 +61,6 @@ public class EC2InstanceConfiguration {
 	/**
 	 * @return Instance Type.
 	 */
-	@Ensures ("result != null")
 	public String getInstanceType () {
 		return instanceType;
 	}
@@ -85,7 +69,6 @@ public class EC2InstanceConfiguration {
 	 * Note: take care of the region.
 	 * @return Instance image id.
 	 */
-	@Ensures ("result != null")
 	public SecuryGroupConfiguration getSecurityGroup () {
 		return securityGroup;
 	}
@@ -93,7 +76,6 @@ public class EC2InstanceConfiguration {
 	/**
 	 * @return Instance location.
 	 */
-	@Ensures ("result != null")
 	public String getRegion () {
 		return region;
 	}

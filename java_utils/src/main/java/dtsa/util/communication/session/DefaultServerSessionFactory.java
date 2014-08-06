@@ -8,9 +8,6 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.function.Function;
 
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Requires;
-
 import dtsa.util.annotation.Nullable;
 import dtsa.util.communication.base.Request;
 import dtsa.util.communication.base.RequestVisitor;
@@ -54,8 +51,6 @@ public class DefaultServerSessionFactory
 	 * @return
 	 */
 	@Override
-	@Requires ("aSocket != null")
-	@Ensures ("result != null")
 	public @Nullable ServerSession apply (Socket aSocket) {
 		ConvertibleObjectListener <Request <? extends RequestVisitor>> listener;
 		ConvertibleObjectWriter <Response <? extends ResponseVisitor>> writer;

@@ -2,8 +2,6 @@ package dtsa.util.aws;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Requires;
 
 /**
  * 
@@ -24,15 +22,6 @@ public class S3BucketConfiguration {
 	 * @throws IllegalArgumentException if one argument is null.
 	 */
 	@JsonCreator
-	@Requires ({
-		"aBucket != null",
-		"aRegion != null"
-	})
-	@Ensures ({
-		"getBucket () == aBucket",
-		"getRegion () == aRegion",
-		"isPublic () == aIsPublic"
-	})
 	public S3BucketConfiguration (@JsonProperty ("bucket") String aBucket, 
 			@JsonProperty ("region") String aRegion, 
 			@JsonProperty ("isPublic") boolean aIsPublic) {

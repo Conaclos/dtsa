@@ -1,8 +1,5 @@
 package dtsa.util.aws;
 
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Requires;
-
 /**
  * 
  * @description Use for mal formed S3ObjectURI.
@@ -19,12 +16,6 @@ public class MalFormedS3ObjectURIException
 	 * 
 	 * @param aStoreId - {@link #getCandidate()}
 	 */
-	@Requires ({
-		"aCandidate != null"
-	})
-	@Ensures ({
-		"getCandidate () == aCandidate"
-	})
 	public MalFormedS3ObjectURIException (String aCandidate) {
 		super (String.format (message, aCandidate, (new S3ObjectURI ("bucket", "object")).toString ()));
 		candidate = aCandidate;

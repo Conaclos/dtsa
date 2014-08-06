@@ -1,8 +1,5 @@
 package dtsa.util.communication.converter;
 
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Requires;
-
 
 public interface Object2String <G>
 	extends Cloneable {
@@ -12,13 +9,6 @@ public interface Object2String <G>
 	 * String representation of `aObject'.
 	 * @param aObject - the wrapped object
 	 */
-	@Requires ({
-		"aObject != null",
-		"isConvertible (aObject)"
-	})
-	@Ensures ({
-		"result != null"
-	})
 	public abstract String value (G aObject);
 
 	/**
@@ -32,7 +22,6 @@ public interface Object2String <G>
 	 * @param aType
 	 * @return Is `aType' attached at least one label?
 	 */
-	@Requires ("aType != null")
 	public abstract boolean isConvertible (G aObject);
 	
 }

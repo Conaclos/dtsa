@@ -3,9 +3,6 @@ package dtsa.util.file;
 import java.io.File;
 import java.util.Calendar;
 
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Requires;
-
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.util.Zip4jConstants;
@@ -27,8 +24,6 @@ public abstract class Store {
 	 * @param aId
 	 *            - store id.
 	 */
-	@Requires ("aId != null && (aId.length () > 0)")
-	@Ensures ("id () == aId")
 	public Store (String aId) {
 		assert aId.length () > 0: "require: `aName' is not empty.";
 		
@@ -53,7 +48,6 @@ public abstract class Store {
 	/**
 	 * @return Store name
 	 */
-	@Ensures ("result != null && result.length () > 0")
 	public String id () {
 		return id;
 	}
@@ -99,7 +93,6 @@ public abstract class Store {
 	 * @throws Exception
 	 *             - triggered if an issue occurs for storing.
 	 */
-	@Requires ("aPath != null")
 	public void storeFromPath (String aPath) throws UnreachablePathException,
 			DirectoryCompressionException, Exception {
 		File f = new File (aPath);
@@ -123,11 +116,6 @@ public abstract class Store {
 	 * @throws DirectoryCompressionException
 	 * @throws Exception
 	 */
-	@Requires ({
-		"aPath != null",
-		"aName != null",
-		"aName.length () > 0"
-	})
 	public void storeFromPathAs (String aPath, String aName) throws UnreachablePathException,
 			DirectoryCompressionException, Exception {
 		assert aName.length () > 0: "require: `aName' is not empty.";
@@ -152,7 +140,6 @@ public abstract class Store {
 	 * @throws Exception
 	 *             - triggered if an issue occurs for storing.
 	 */
-	@Requires ({ "aFile != null", "aFile.exists ()" })
 	public void store (File aFile) throws DirectoryCompressionException, Exception {
 		assert aFile.exists (): "require: `aPath' exists.";
 		
@@ -170,12 +157,6 @@ public abstract class Store {
 	 * @throws DirectoryCompressionException
 	 * @throws Exception
 	 */
-	@Requires ({
-		"aFile != null",
-		"aName != null",
-		"aFile.exists ()",
-		"aName.length () > 0"
-	})
 	public void storeAs (File aFile, String aName) throws DirectoryCompressionException, Exception {
 		assert aFile.exists (): "require: `aPath' exists.";
 		assert aName.length () > 0: "require: `aName' is not empty.";
@@ -200,12 +181,6 @@ public abstract class Store {
 	 * @throws Exception
 	 *             - triggered if an issue occurs for storing.
 	 */
-	@Requires ({
-		"aDirectory != null",
-		"aName != null",
-		"aDirectory.exists ()",
-		"aName.length () > 0"
-	})
 	public void storeDirectoryAs (File aDirectory, String aName) throws DirectoryCompressionException, Exception,
 			DirectoryCompressionException {
 		assert aDirectory.exists (): "require: `aDirectory' exists.";
@@ -247,12 +222,6 @@ public abstract class Store {
 	 * @throws Exception
 	 *             - exceptions for specific implementation.
 	 */
-	@Requires ({
-		"aPlainFile != null",
-		"aName != null",
-		"aPlainFile.exists ()",
-		"aName.length () > 0"
-	})
 	public abstract void storePlainFileAs (File aPlainFile, String aName) throws Exception;
 	
 // Change (local)
@@ -266,11 +235,6 @@ public abstract class Store {
 	 * @throws DirectoryCompressionException
 	 * @throws Exception
 	 */
-	@Requires ({
-		"aName != null",
-		"aName.length () > 0",
-		"aPath != null"
-	})
 	public void storeToPath (String aName, String aPath) throws UnreachablePathException, UntwinableObjectException, UnreachableObjectException,
 			Exception {
 		File f = new File (aPath);
@@ -290,18 +254,12 @@ public abstract class Store {
 	 * @param aDirectory - local directory
 	 * @throws Exception
 	 */
-	@Requires ({
-		"aName != null",
-		"aName.length () > 0",
-		"aDirectory != null"
-	})
 	public abstract void storeTo (String aName, File aDirectory) throws UnreachableObjectException, UntwinableObjectException, Exception;
 	
 // Removal
 	/**
 	 * @param aName - entity to remove
 	 */
-	@Requires ("aName != null")
 	public abstract void remove (String aName);
 	
 // Implementation

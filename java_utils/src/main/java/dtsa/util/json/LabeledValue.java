@@ -2,8 +2,6 @@ package dtsa.util.json;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Requires;
 
 import dtsa.util.annotation.Nullable;
 
@@ -19,14 +17,6 @@ public class LabeledValue {
 	 * @param aLabel
 	 * @param aValue
 	 */
-	@Requires ({
-		"aLabel != null",
-		"aValue != null"
-	})
-	@Ensures ({
-		"getLabel () == aLabel",
-		"getValue () == aValue"
-	})
 	@JsonCreator
 	public LabeledValue (@JsonProperty ("label") String aLabel, @JsonProperty ("value") String aValue) {
 		label = aLabel;
@@ -40,7 +30,6 @@ public class LabeledValue {
 	/**
 	 * @return Label attached to `getValue'.
 	 */
-	@Ensures ("result != null")
 	public String getLabel () {
 		return label;
 	}
@@ -48,7 +37,6 @@ public class LabeledValue {
 	/**
 	 * @return Main content.
 	 */
-	@Ensures ("result != null")
 	public @Nullable String getValue () {
 		return value;
 	}

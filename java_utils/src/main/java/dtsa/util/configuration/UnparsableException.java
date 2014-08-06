@@ -1,9 +1,5 @@
 package dtsa.util.configuration;
 
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Invariant;
-import com.google.java.contract.Requires;
-
 /**
  * 
  * @description Exception for resource not found or parsing errors.
@@ -19,8 +15,6 @@ public class UnparsableException
 	 * 
 	 * @param aResourcePath - {@link #getResourcePath ()}
 	 */
-	@Requires ("aResourcePath != null")
-	@Ensures ("getResourcePath () == aResourcePath")
 	public UnparsableException (String aResourcePath) {
 		super (String.format (message, aResourcePath));
 		
@@ -45,7 +39,6 @@ public class UnparsableException
 	 * 
 	 * @return Path of the resource, relative to 'resources' directory.
 	 */
-	@Ensures ("result != null")
 	public String getResourcePath () {
 		return resourcePath;
 	}

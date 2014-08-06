@@ -10,8 +10,6 @@ import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Requires;
 
 import dtsa.util.annotation.Nullable;
 import dtsa.util.file.DirectoryCompressionException;
@@ -40,16 +38,6 @@ public class S3Bucket
 	 * @param aS3
 	 *            - S3 service.
 	 */
-	@Requires ({
-		"aConfiguration != null",
-		"aS3 != null"
-	})
-	@Ensures ({
-		"s3 == aS3",
-		"id == aConfiguration.getBucket ()",
-		"access == aConfiguration.getAccess ()",
-		"location == aConfiguration.getRegion ()"
-	})
 	public S3Bucket (S3BucketConfiguration aConfiguration, AmazonS3Client aS3) throws AmazonServiceException {
 		super (aConfiguration.getBucket ());
 		location = aConfiguration.getRegion ();
@@ -225,7 +213,6 @@ public class S3Bucket
 	 * @return
 	 */
 	@Override
-	@Requires ("aDirectory.exists () && aDirectory.isDirectory ()")
 	public void storeTo (String aName, File aDirectory) throws UnreachableObjectException, UntwinableObjectException, AmazonServiceException {
 		assert aDirectory.exists (): "require: `aDirectory' exists.";
 		assert aDirectory.isDirectory (): "require: `aDirectory' denotes a directory." + aDirectory.getPath ();

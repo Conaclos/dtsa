@@ -1,8 +1,5 @@
 package dtsa.util.file;
 
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Requires;
-
 /**
  * 
  * @description Exception for fail in the storing step.
@@ -20,14 +17,6 @@ public class UnstorableFileException
 	 * @param aName - {@link #getName()}
 	 * @param aPath - {@link #getPath()}
 	 */
-	@Requires ({
-		"aName != null",
-		"aPath != null"
-	})
-	@Ensures ({
-		"getName () == aName",
-		"getPath () == aPath"
-	})
 	public UnstorableFileException (String aName, String aPath) {
 		super (String.format (message, aPath, aName));
 		name = aName;
@@ -52,7 +41,6 @@ public class UnstorableFileException
 	/**
 	 * @return Path of the file to store.
 	 */
-	@Ensures ("result != null")
 	public String getName () {
 		return name;
 	}
@@ -60,7 +48,6 @@ public class UnstorableFileException
 	/**
 	 * @return Path of the file to store.
 	 */
-	@Ensures ("result != null")
 	public String getPath () {
 		return path;
 	}

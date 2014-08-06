@@ -1,8 +1,5 @@
 package dtsa.util.file;
 
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Requires;
-
 /**
  * 
  * @description Exception for failing during duplication step between remote and local place.
@@ -21,16 +18,6 @@ public class UntwinableObjectException
 	 * @param aStoreId - {@link #getStoreId()}
 	 * 
 	 */
-	@Requires ({
-		"aName != null",
-		"aStoreId != null",
-		"aDirectory != null"
-	})
-	@Ensures ({
-		"getName () == aName",
-		"getStoreId () == aStoreId",
-		"getDirectory () == aDirectory"
-	})
 	public UntwinableObjectException (String aName, String aStoreId, String aDirectory) {
 		super (String.format (message, aName, aStoreId));
 		name = aName;
@@ -57,7 +44,6 @@ public class UntwinableObjectException
 	/**
 	 * @return Unreachable object's name.
 	 */
-	@Ensures ("result != null")
 	public String getName () {
 		return name;
 	}

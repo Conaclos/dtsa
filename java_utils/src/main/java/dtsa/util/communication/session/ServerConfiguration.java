@@ -2,8 +2,6 @@ package dtsa.util.communication.session;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Requires;
 
 /**
  * 
@@ -23,15 +21,6 @@ public class ServerConfiguration {
 	 *            - {@link #isExceptionLogging()}
 	 */
 	@JsonCreator
-	@Requires ({
-		"1024 <= aPort && aPort <= 65555",
-		"aClientConfiguration != null"
-	})
-	@Ensures ({
-		"getPort () == aPort",
-		"getExceptionLogging () == aExceptionLogging",
-		"getClientConfiguration () == aClientConfiguration"
-	})
 	public ServerConfiguration (@JsonProperty ("port") int aPort, 
 			@JsonProperty ("exceptionLogging") boolean aExceptionLogging,
 			@JsonProperty ("client") ServerSessionConfiguration aClientConfiguration) {
@@ -59,7 +48,6 @@ public class ServerConfiguration {
 	 * 
 	 * @return Server port.
 	 */
-	@Ensures ("result != null")
 	public int getPort () {
 		return port;
 	}
@@ -68,7 +56,6 @@ public class ServerConfiguration {
 	 * 
 	 * @return Is logging of exception enabled?
 	 */
-	@Ensures ("result != null")
 	public boolean isExceptionLogging () {
 		return exceptionLogging;
 	}
@@ -77,7 +64,6 @@ public class ServerConfiguration {
 	 * 
 	 * @return Configuration for client sessions.
 	 */
-	@Ensures ("result != null")
 	public ServerSessionConfiguration getClientConfiguration () {
 		return clientConfiguration;
 	}

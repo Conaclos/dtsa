@@ -1,9 +1,5 @@
 package dtsa.util.file;
 
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Invariant;
-import com.google.java.contract.Requires;
-
 /**
  * 
  * @description Exception for failing during file compression step.
@@ -11,7 +7,6 @@ import com.google.java.contract.Requires;
  * @date 2014/06/30
  *
  */
-@Invariant ("getPath () != null")
 public class DirectoryCompressionException 
 	extends Exception {
 	
@@ -21,8 +16,6 @@ public class DirectoryCompressionException
 	 * 
 	 * @param aPath - {@link #getPath()}
 	 */
-	@Requires ("aPath != null")
-	@Ensures ("getPath () == aPath")
 	public DirectoryCompressionException (String aPath) {		
 		super (String.format (message, aPath));
 		path = aPath;
@@ -46,7 +39,6 @@ public class DirectoryCompressionException
 	 * 
 	 * @return Directory path.
 	 */
-	@Ensures ("result != null")
 	public String getPath () {
 		return path;
 	}

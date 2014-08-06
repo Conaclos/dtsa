@@ -3,9 +3,6 @@ package dtsa.util.communication.session;
 import java.net.Socket;
 import java.util.function.Function;
 
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Requires;
-
 import dtsa.util.annotation.Nullable;
 import dtsa.util.communication.base.RepeatableTask;
 import dtsa.util.communication.listener.ClientListener;
@@ -27,16 +24,6 @@ public class DefaultApplicationSession
 	 * @param aLogger - Logger
 	 * @param aInjector - dependency injector
 	 */
-	@Requires ({
-		"aListener != null",
-		"aLogger != null"
-	})
-	@Ensures ({
-		"listener == aListener",
-		"logger == aLogger",
-		"sessionFactory == aSssionFactory",
-		"listener.isAlive ()"
-	})
 	public DefaultApplicationSession (ClientListener aListener, Function <Socket, ServerSession> aSssionFactory, Logger aLogger) {
 		listener = aListener;
 		sessionFactory = aSssionFactory;
@@ -97,7 +84,6 @@ public class DefaultApplicationSession
 	 * 
 	 * @param aSocket - client socket
 	 */
-	@Requires ("aScoket != null")
 	protected void launchSession (Socket aScoket) {
 		@Nullable ServerSession maybe;
 		

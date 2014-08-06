@@ -5,8 +5,6 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Requires;
 
 import dtsa.util.annotation.Nullable;
 import dtsa.util.configuration.UnmatchableTypeException;
@@ -26,8 +24,6 @@ public class AWS {
 	 * 
 	 * @param aConfiguration - service configurations.
 	 */
-	@Requires ("aConfiguration != null")
-	@Ensures ("configuration == aConfiguration")
 	public AWS (AWSConfiguration aConfiguration) {
 		configuration = aConfiguration;
 		
@@ -41,7 +37,6 @@ public class AWS {
 	 * @throws UnparsableException
 	 * @throws UnmatchableTypeException
 	 */
-	@Ensures ("result != null")
 	public EC2InstancePool newInstancePool () throws UnparsableException, UnmatchableTypeException {
 		return new EC2InstancePool (configuration.getEc2 (), new AmazonEC2Client (defaultCredentials ()));
 	}
@@ -53,7 +48,6 @@ public class AWS {
 	 * @throws UnparsableException
 	 * @throws UnmatchableTypeException
 	 */
-	@Ensures ("result != null")
 	public S3Bucket defaultBucket () throws AmazonServiceException, UnparsableException, UnmatchableTypeException {
 		@Nullable S3Bucket result;
 		
@@ -86,7 +80,6 @@ public class AWS {
 	 * @throws UnmatchableTypeException 
 	 * @throws UnparsableException
 	 */
-	@Ensures ("result != null")
 	protected AWSCredentials defaultCredentials () throws UnparsableException, UnmatchableTypeException  {
 		@Nullable AWSCredentials result;
 		

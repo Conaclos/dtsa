@@ -2,8 +2,6 @@ package dtsa.util.aws;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Requires;
 
 /**
  * 
@@ -22,12 +20,6 @@ public class AWSConfiguration {
 	 * @param aEc2 - {@link #getEc2()}
 	 */
 	@JsonCreator
-	@Requires ({
-		"aProfile != null",
-		"aS3 != null",
-		"aEc2 != null"
-	})
-	@Ensures ("profile == aProfile")
 	public AWSConfiguration (@JsonProperty ("profile") String aProfile, 
 			@JsonProperty ("s3") S3BucketConfiguration aS3,
 			@JsonProperty ("ec2") EC2InstanceConfiguration aEc2) {
@@ -55,7 +47,6 @@ public class AWSConfiguration {
 	/**
 	 * @return profie name.
 	 */
-	@Ensures ("result != null")
 	public String getProfile () {
 		return profile;
 	}
@@ -63,7 +54,6 @@ public class AWSConfiguration {
 	/**
 	 * @return AWS S3 configuration.
 	 */
-	@Ensures ("result != null")
 	public S3BucketConfiguration getS3 () {
 		return s3;
 	}
@@ -71,7 +61,6 @@ public class AWSConfiguration {
 	/**
 	 * @return AWS EC2 configuration.
 	 */
-	@Ensures ("result != null")
 	public EC2InstanceConfiguration getEc2 () {
 		return ec2;
 	}

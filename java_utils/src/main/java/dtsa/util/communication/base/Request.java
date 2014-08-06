@@ -1,8 +1,5 @@
 package dtsa.util.communication.base;
 
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Invariant;
-import com.google.java.contract.Requires;
 
 import dtsa.util.annotation.Nullable;
 
@@ -15,9 +12,6 @@ import dtsa.util.annotation.Nullable;
  * @param <P> - NonNull type based on  RequestVisitor
  * @param <R> - NonNull type based on Response
  */
-@Invariant ({
-	"(! hasResponse () && ! hasException ()) || (hasResponse () && ! hasException ()) || (! hasResponse () && hasException ())"
-})
 public abstract class Request <P extends RequestVisitor> {
 	
 // Access
@@ -37,10 +31,6 @@ public abstract class Request <P extends RequestVisitor> {
 	 * Don't copy `response' and `exception'.
 	 * @return Partial clone of the current instance.
 	 */
-	@Ensures ({
-		"result != null",
-		"partialEquals (result)"
-	})
 	public abstract Request <P> partialCLone ();
 	
 // Status	
@@ -49,8 +39,6 @@ public abstract class Request <P extends RequestVisitor> {
 	 * @param aOther
 	 * @return IS `aOther' partially equals to current instance?
 	 */
-	@Requires ("aOther != null")
-	@Ensures ("hasResponse () == aProcessor.isReactive ()")
 	public abstract boolean partialEquals (Object aOther);
 	
 	/**
@@ -74,8 +62,6 @@ public abstract class Request <P extends RequestVisitor> {
 	 * 
 	 * @param aProcessor - a visitor
 	 */
-	@Requires ("aProcessor != null")
-	@Ensures ("(hasResponse () || hasException ()) == aProcessor.isReactive ()")
 	public abstract void accept (P aProcessor);
 	
 	/**
@@ -84,7 +70,6 @@ public abstract class Request <P extends RequestVisitor> {
 	 * 
 	 * @param aProcessor - a visitor
 	 */
-	@Requires ("aProcessor != null")
 	public void attemptAccept (RequestVisitor aProcessor) {
 		try {
 			P processor = (P) aProcessor;

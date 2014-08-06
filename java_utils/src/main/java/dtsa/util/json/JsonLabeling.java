@@ -7,8 +7,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Requires;
 
 import dtsa.util.annotation.Nullable;
 import dtsa.util.communication.converter.Object2String;
@@ -78,11 +76,6 @@ public class JsonLabeling <G>
 	 * @throws UnrecordedLabelException 
 	 * @throws InvalidJSONException 
 	 */
-	@Requires ({
-		"aValue != null",
-		"aLabel != null"
-	})
-	@Ensures ("result != null")
 	public G object (String aValue, String aLabel) throws UnrecordedLabelException, InvalidJSONException {
 		@Nullable Class<? extends G> type;
 		G result;
@@ -145,7 +138,6 @@ public class JsonLabeling <G>
 	 * @param aLabel
 	 * @return IS `aLabel' already in use?
 	 */
-	@Requires ("aLabel != null")
 	public boolean has (String aLabel) {
 		return mapping.containsKey (aLabel);
 	}
@@ -160,7 +152,6 @@ public class JsonLabeling <G>
 	 * @param aType
 	 * @return Is `aType' attached at least one label?
 	 */
-	@Requires ("aType != null")
 	public boolean isLabeled (Class <? extends G> aType) {
 		return mapping.containsValue (aType);
 	}
@@ -171,14 +162,6 @@ public class JsonLabeling <G>
 	 * @param aLabel - New label
 	 * @param aType - java type
 	 */
-	@Requires ({
-		"aValue != null",
-		"aLabel != null"
-	})
-	@Ensures ({
-		"has (aLabel)",
-		"isLabeled (aType)"
-	})
 	public void add (String aLabel, Class <? extends G> aType) {
 		assert ! has (aLabel): "require: `aLabel' is not already use.";
 		assert ! isLabeled (aType): "require: `aType' is not already labeled.";
@@ -205,7 +188,6 @@ public class JsonLabeling <G>
 	 * @param aObject
 	 * @return Wrapped version of `aObject' or Null if none label for type of `aObject'.
 	 */
-	@Requires ("aObject != null")
 	protected @Nullable LabeledValue wrapped (G aObject) throws IOException {
 		Class <? extends G> type;
 		@Nullable LabeledValue result;

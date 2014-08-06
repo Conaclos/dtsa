@@ -2,8 +2,6 @@ package dtsa.util.communication.base;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.google.java.contract.Ensures;
-
 /**
  * 
  * @description Task repeated.
@@ -18,7 +16,6 @@ public abstract class RepeatableTask
 	/**
 	 * Create an active repeatable task.
 	 */
-	@Ensures ("! isAlive ()")
 	public RepeatableTask () {
 		super ();
 		isActive = new AtomicBoolean (true);
@@ -44,7 +41,6 @@ public abstract class RepeatableTask
 		}
 	}
 	
-	@Ensures ("! isActive ()")
 	@Override
 	public void interrupt () {
 		System.out.println ("interruption de " + getClass ().getName ()); // TODO remove it

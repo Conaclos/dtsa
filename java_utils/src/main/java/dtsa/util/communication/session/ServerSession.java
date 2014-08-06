@@ -4,8 +4,6 @@ package dtsa.util.communication.session;
 import java.io.IOException;
 import java.net.Socket;
 
-import com.google.java.contract.Requires;
-
 import dtsa.util.communication.base.RepeatableTask;
 
 /**
@@ -18,9 +16,6 @@ public abstract class ServerSession
 		extends RepeatableTask {
 	
 // Creation
-	@Requires ({
-		"aSocket != null"
-	})
 	public ServerSession (Socket aSocket) {
 		super ();
 		

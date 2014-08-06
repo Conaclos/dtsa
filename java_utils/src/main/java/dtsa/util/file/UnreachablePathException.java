@@ -1,8 +1,5 @@
 package dtsa.util.file;
 
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Requires;
-
 /**
  * 
  * @description Exception for unreachable file or directory.
@@ -19,8 +16,6 @@ public class UnreachablePathException
 	 * 
 	 * @param aPath - {@link #getPath()}
 	 */
-	@Requires ("aPath != null")
-	@Ensures ("getPath () == aPath")
 	public UnreachablePathException (String aPath) {		
 		super (String.format (message, aPath));
 		path = aPath;
@@ -43,7 +38,6 @@ public class UnreachablePathException
 	/**
 	 * @return Unreachable path.
 	 */
-	@Ensures ("result != null")
 	public String getPath () {
 		return path;
 	}

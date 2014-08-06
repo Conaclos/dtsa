@@ -1,7 +1,5 @@
 package dtsa.util.communication.base;
 
-import com.google.java.contract.Requires;
-
 /**
  * 
  * @description Root ancestor of all server response. Response are simple objects for reception.
@@ -28,7 +26,6 @@ public abstract class Response <P extends ResponseVisitor> {
 	 * 
 	 * @param aVisitor - a visitor
 	 */
-	@Requires ("aProcessor != null")
 	public void attemptAccept (ResponseVisitor aVisitor) {
 		try {
 			P processor = (P) aVisitor;

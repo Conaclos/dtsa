@@ -3,9 +3,6 @@ package dtsa.util.communication.listener;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-import com.google.java.contract.Ensures;
-import com.google.java.contract.Requires;
-
 import dtsa.util.annotation.Nullable;
 import dtsa.util.communication.converter.String2Object;
 
@@ -21,14 +18,6 @@ public class ConvertibleObjectListener <G>
 	extends InputListener <G> {
 
 // Creation
-	@Requires ({
-		"aInput != null",
-		"aConverter != null"
-	})
-	@Ensures ({
-		"in == aInput",
-		"converter == aConverter"
-	})
 	public ConvertibleObjectListener (BufferedReader aInput, String2Object <G> aConverter) {
 		super (DefaultCapacity);
 		
