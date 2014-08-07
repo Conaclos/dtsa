@@ -1,7 +1,6 @@
 package dtsa.mapper.cloud.aws.base;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.ec2.AmazonEC2Client;
@@ -18,7 +17,6 @@ import dtsa.mapper.client.response.StartingInstancesMapperResponse;
 import dtsa.mapper.client.response.StoreMapperResponse;
 import dtsa.mapper.cloud.mapped.base.MappedProxy;
 import dtsa.mapper.cloud.mapped.base.MappedProxyFactory;
-import dtsa.util.annotation.NonNull;
 import dtsa.util.annotation.Nullable;
 import dtsa.util.aws.AWS;
 import dtsa.util.aws.AWSConfiguration;
