@@ -122,31 +122,10 @@ public class LocalClientRequestVisitor
 			p.destroy ();
 			
 			aVisited.setResponse (new ProjectCompilationMappedResponse (configuration.getWorkspace ()));
+			aVisited.setResponse (new ProjectCompilationMappedResponse (localConfiguration.getWorkspace ()));
 		}
-		catch (FileNotFoundException e) {
+		catch (Exception e) {
 			aVisited.setException (new MappedExceptionResponse (e));
-			// TODO Auto-generated catch block
-			e.printStackTrace ();
-		}
-		catch (IOException e) {
-			aVisited.setException (new MappedExceptionResponse (e));
-			// TODO Auto-generated catch block
-			e.printStackTrace ();
-		}
-		catch (ZipException e) {
-			aVisited.setException (new MappedExceptionResponse (e));
-			// TODO Auto-generated catch block
-			e.printStackTrace ();
-		}
-		catch (MalFormedS3ObjectURIException e) {
-			aVisited.setException (new MappedExceptionResponse (e));
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (AmazonServiceException e) {
-			aVisited.setException (new MappedExceptionResponse (e));
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 
