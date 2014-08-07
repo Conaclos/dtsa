@@ -1,20 +1,15 @@
 package dtsa.mapped.back.local.base;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.Arrays;
 
 import net.lingala.zip4j.core.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
 import dtsa.mapped.client.request.ClientRequestVisitor;
 import dtsa.mapped.client.request.EchoClientRequest;
 import dtsa.mapped.client.request.ProjectCompilationClientRequest;
@@ -25,28 +20,35 @@ import dtsa.mapped.client.response.ProjectCompilationMappedResponse;
 import dtsa.mapped.client.response.ProjectTestingMappedResponse;
 import dtsa.util.aws.AWS;
 import dtsa.util.aws.AWSConfiguration;
-import dtsa.util.aws.MalFormedS3ObjectURIException;
 import dtsa.util.aws.S3ObjectURI;
-import dtsa.util.configuration.UnmatchableTypeException;
-import dtsa.util.configuration.UnparsableException;
-
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.amazonaws.AmazonServiceException;
-
+/**
+ * 
+ * @description 
+ * @author Victorien ELvinger
+ * @date 2014
+ *
+ */
 public class LocalClientRequestVisitor
 		extends AWS
 		implements ClientRequestVisitor {
 	
 // Creation
-	public LocalClientRequestVisitor (AWSConfiguration aAWSConfiguration, LocalConfiguration aConfiguration) {
+	public LocalClientRequestVisitor (AWSConfiguration aAWSConfiguration, LocalConfiguration alocalConfiguration) {
 		super (aAWSConfiguration);
-		configuration = aConfiguration;
+		localConfiguration = alocalConfiguration;
 		logger = Logger.getLogger (getClass ().getName ());
 		
-		assert configuration == aConfiguration: "esnure:  `configuration' set with `aConfiguration'";
+		assert localConfiguration == alocalConfiguration: "esnure:  `configuration' set with `aConfiguration'";
 	}
+	
+// Constant
+	/**
+	 * First variable: project directory.
+	 * Second variable: target.
+	 */
+	protected final static String testingResultRelativePathScheme = "%s/EIFGENs/%s/Testing/auto_test";
 	
 // Status
 	@Override
@@ -72,12 +74,14 @@ public class LocalClientRequestVisitor
 		try {
 			if (aVisited.getUri ().startsWith (S3ObjectURI.protocol)) {
 				object = new S3ObjectURI (aVisited.getUri ());
-				// TODO get object
-				name = object.getId ();
-				workspace = configuration.getWorkspace ();
 				
-				zip = new ZipFile (configuration.getWorkspace () + name);
-				zip.extractAll (configuration.getWorkspace ());
+				name = object.getId ();
+				workspace = localConfiguration.getWorkspace ();
+				
+				defaultBucket ().storeToPath (name, workspace);
+				
+				zip = new ZipFile (localConfiguration.getWorkspace () + name);
+				zip.extractAll (localConfiguration.getWorkspace ());
 			}
 			else {
 				url = new URL (aVisited.getUri ());
@@ -88,27 +92,47 @@ public class LocalClientRequestVisitor
 					workspace = url.getPath ();
 				}
 				else {
-					workspace = configuration.getWorkspace ();
+					workspace = localConfiguration.getWorkspace ();
 					
-					rbc = Channels.newChannel (url.openStream ());
-					fos = new FileOutputStream (configuration.getWorkspace () + name);
-					fos.getChannel ().transferFrom (rbc, 0, Long.MAX_VALUE);
-					
-					zip = new ZipFile (configuration.getWorkspace () + name);
-					zip.extractAll (configuration.getWorkspace ());
+					if (name.endsWith (".git")) {
+						name = name.substring (0, name.length () - 4);
+						// Shallow clone
+						builder = new ProcessBuilder ("git", "clone", 
+								"--depth", "1",
+								aVisited.getUri (),
+								workspace + name);
+						p = builder.start ();
+
+						if (p.waitFor () == 1) {
+							reader = new BufferedReader (new InputStreamReader (p.getErrorStream ()));
+							line = reader.readLine ();
+							if (line == null) {
+								line = "Git error.";
+							}
+							throw new Exception (line);
+						}
+					}
+					else {
+						rbc = Channels.newChannel (url.openStream ());
+						fos = new FileOutputStream (localConfiguration.getWorkspace () + name);
+						fos.getChannel ().transferFrom (rbc, 0, Long.MAX_VALUE);
+						
+						zip = new ZipFile (localConfiguration.getWorkspace () + name);
+						zip.extractAll (localConfiguration.getWorkspace ());
+					}
 				}
 			}
 			
-			builder = new ProcessBuilder (configuration.getEc (),
-					"-project_path", configuration.getWorkspace () + aVisited.getProject (),
-					"-config", configuration.getWorkspace () + aVisited.getConfiguration (),
+			builder = new ProcessBuilder (localConfiguration.getEc (),
+					"-project_path", workspace + aVisited.getProject (),
+					"-config", workspace + aVisited.getConfiguration (),
 					"-target", aVisited.getTarget (),
 					"-c_compile", "-clean", "-freeze");
 			p = builder.start ();
 			
-			logger.info ("Command: " + Arrays.toString (new String [] {configuration.getEc (),
-					"-project_path", configuration.getWorkspace () + aVisited.getProject (),
-					"-config", configuration.getWorkspace () + aVisited.getConfiguration (),
+			logger.info ("Command: " + Arrays.toString (new String [] {localConfiguration.getEc (),
+					"-project_path", workspace + aVisited.getProject (),
+					"-config", workspace + aVisited.getConfiguration (),
 					"-target", aVisited.getTarget (),
 					"-c_compile", "-clean", "-freeze"}).replace (",", ""));
 			
@@ -121,7 +145,6 @@ public class LocalClientRequestVisitor
 			
 			p.destroy ();
 			
-			aVisited.setResponse (new ProjectCompilationMappedResponse (configuration.getWorkspace ()));
 			aVisited.setResponse (new ProjectCompilationMappedResponse (localConfiguration.getWorkspace ()));
 		}
 		catch (Exception e) {
@@ -141,24 +164,38 @@ public class LocalClientRequestVisitor
 		ProjectCompilationMappedResponse compilationResponse;
 		ProcessBuilder builder;
 		BufferedReader reader;
-		String line, classes;
+		String line, classes, key;
 		Process p;
 		
 		compilation = new ProjectCompilationClientRequest (aVisited.getUri (), aVisited.getProject (), aVisited.getConfiguration (), aVisited.getTarget ());
 		visitProjectCompilation (compilation);
 		compilationResponse = compilation.response ();
 		
-		assert aVisited.getTimeout () > 0: "check: timeout is strictly positive.";
+		if (compilation.hasResponse ()) {
+			assert aVisited.getTimeout () > 0: "check: timeout is strictly positive.";
 
-		classes = "";
-		for (String item : aVisited.getClasses ()) {
-			classes = classes + item + " ";
-		}
-		classes = classes.substring (0, classes.length () - 1);
-		
-		builder = new ProcessBuilder (configuration.getEc (), 
-				"-project_path", configuration.getWorkspace () + aVisited.getProject (), 
-				"-config", configuration.getWorkspace () + aVisited.getConfiguration (), 
+			classes = "";
+			for (String item : aVisited.getClasses ()) {
+				classes = classes + item + " ";
+			}
+			classes = classes.substring (0, classes.length () - 1);
+			
+			builder = new ProcessBuilder (localConfiguration.getEc (), 
+					"-project_path", localConfiguration.getWorkspace () + aVisited.getProject (), 
+					"-config", localConfiguration.getWorkspace () + aVisited.getConfiguration (), 
+					"-target", aVisited.getTarget (), 
+					"-auto_test", 
+					"-i", 
+					"-f", 
+					"--agents", "none", 
+					"-t", "" + aVisited.getTimeout (), 
+					"--state", "argumentless", 
+					"--serialization", "FAILING",
+					classes);
+			
+			logger.info (Arrays.toString (new String [] {localConfiguration.getEc (), 
+				"-project_path", localConfiguration.getWorkspace () + aVisited.getProject (), 
+				"-config", localConfiguration.getWorkspace () + aVisited.getConfiguration (), 
 				"-target", aVisited.getTarget (), 
 				"-auto_test", 
 				"-i", 
@@ -166,56 +203,49 @@ public class LocalClientRequestVisitor
 				"--agents", "none", 
 				"-t", "" + aVisited.getTimeout (), 
 				"--state", "argumentless", 
-				"--serialization", "FAILING",
-				classes);
-		
-		logger.info (Arrays.toString (new String [] {configuration.getEc (), 
-			"-project_path", configuration.getWorkspace () + aVisited.getProject (), 
-			"-config", configuration.getWorkspace () + aVisited.getConfiguration (), 
-			"-target", aVisited.getTarget (), 
-			"-auto_test", 
-			"-i", 
-			"-f", 
-			"--agents", "none", 
-			"-t", "" + aVisited.getTimeout (), 
-			"--state", "argumentless", 
-			"--serialization", "FAILING", 
-			classes}).replace (",", ""));
-		
-		try {
-			p = builder.start ();
+				"--serialization", "FAILING", 
+				classes}).replace (",", ""));
 			
-			// Eiffel instrumentation
-			line = "";
-			reader = new BufferedReader (new InputStreamReader (p.getErrorStream ()));			
-			do {
-				logger.info (line);
-				line = reader.readLine ();
-			} while (line != null && ! line.equals ("Degree -1: Generating Code"));
-			
-			// C compilation
-			line = "";
-			reader = new BufferedReader (new InputStreamReader (p.getInputStream ()));
-			do {
-				logger.info (line);
-				line = reader.readLine ();
-			} while (line != null && ! line.equals ("C compilation completed"));
-			
-			// AutoTest execution
-			line = "";
-			reader = new BufferedReader (new InputStreamReader (p.getErrorStream ()));			
-			do {
-				logger.info (line);
-				line = reader.readLine ();
-			} while (line != null);
-			
-			p.destroy ();
-			
-			aVisited.setResponse (new ProjectTestingMappedResponse (configuration.getWorkspace ()));
+			try {
+				p = builder.start ();
+				
+				// Eiffel instrumentation
+				line = "";
+				reader = new BufferedReader (new InputStreamReader (p.getErrorStream ()));			
+				do {
+					logger.info (line);
+					line = reader.readLine ();
+				} while (line != null && ! line.equals ("Degree -1: Generating Code"));
+				
+				// C compilation
+				line = "";
+				reader = new BufferedReader (new InputStreamReader (p.getInputStream ()));
+				do {
+					logger.info (line);
+					line = reader.readLine ();
+				} while (line != null && ! line.equals ("C compilation completed"));
+				
+				// AutoTest execution
+				line = "";
+				reader = new BufferedReader (new InputStreamReader (p.getErrorStream ()));			
+				do {
+					logger.info (line);
+					line = reader.readLine ();
+				} while (line != null);
+				
+				p.destroy ();
+				
+				key = "results_" + defaultBucket ().salt ();
+				defaultBucket ().storeFromPathAs (String.format (testingResultRelativePathScheme, localConfiguration.getWorkspace () + aVisited.getProject (), aVisited.getTarget ()), key);
+				
+				aVisited.setResponse (new ProjectTestingMappedResponse (defaultBucket ().createURI (key)));
+			}
+			catch (Exception e) {
+				aVisited.setException (new MappedExceptionResponse (e));
+			}
 		}
-		catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		else {
+			aVisited.setException (compilation.exception ());
 		}
 	}
 	
@@ -223,7 +253,7 @@ public class LocalClientRequestVisitor
 	/**
 	 * Local configuration.
 	 */
-	protected LocalConfiguration configuration;
+	protected LocalConfiguration localConfiguration;
 	
 	/**
 	 * Logger.
