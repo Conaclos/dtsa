@@ -136,7 +136,32 @@ public class EC2InstancePool {
 		createSecurityGroup ();
 		launchInstances (aCount);
 	}
-	
+
+	/**
+	 * Terminates potential launched instances.
+	 */
+	public void terminate () {
+		TerminateInstancesRequest instanceRequest;
+		@Nullable List <String> localIds;
+
+		localIds = ids;
+		if (localIds != null) {
+			instanceRequest = new TerminateInstancesRequest (localIds);
+			ec2.terminateInstances (instanceRequest);
+		}
+	}
+
+	/**
+	 * @param aIds - {@link #ids ()}
+	 */
+	public void setIds (List <String> aIds) {
+		assert ids ().isEmpty (): "require: `ids' not already initialized.";
+
+		ids = aIds;
+
+		assert ids () == aIds: "ensure: `ids' set with `aIds'.";
+	}
+
 // Implementation
 	/**
 	 * Amazon EC2 service.
