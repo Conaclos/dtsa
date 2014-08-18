@@ -17,6 +17,16 @@ public abstract interface MapperResponseVisitor
 	public abstract void visitStore (StoreMapperResponse aVisited);
 	
 	/**
+	 * Handle `aVisited'.
+	 * 
+	 * @pattern Visitor
+	 * 
+	 * @param aVisited
+	 *            - response to process.
+	 */
+	public abstract void visitRetrieve (RetrieveMapperResponse aVisited);
+	
+	/**
 	 * 
 	 * Handle `aVisited'.
 	 * 

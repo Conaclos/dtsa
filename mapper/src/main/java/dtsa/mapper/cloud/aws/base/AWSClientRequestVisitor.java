@@ -22,6 +22,9 @@ import dtsa.util.aws.AWS;
 import dtsa.util.aws.AWSConfiguration;
 import dtsa.util.aws.EC2InstancePool;
 import dtsa.util.aws.S3Bucket;
+import dtsa.util.aws.S3ObjectURI;
+import dtsa.util.communication.base.Response;
+import dtsa.util.communication.base.ResponseVisitor;
 import dtsa.util.configuration.UnmatchableTypeException;
 import dtsa.util.configuration.UnparsableException;
 import dtsa.util.file.DirectoryCompressionException;
@@ -39,20 +42,20 @@ import dtsa.mapped.client.response.EchoMappedResponse;
 public class AWSClientRequestVisitor
 		extends AWS
 		implements ClientRequestVisitor {
-	
+
 // Creation
 	/**
-	 * 
+	 *
 	 * @param aConfiguration - Server configuration
 	 * @param aServiceConfiguration - Remote service configuration
 	 */
-	public AWSClientRequestVisitor (AWSConfiguration aConfiguration, ServiceConfiguration aServiceConfiguration, 
+	public AWSClientRequestVisitor (AWSConfiguration aConfiguration, ServiceConfiguration aServiceConfiguration,
 			MappedProxyFactory aFactory) {
 		super (aConfiguration);
 		serviceConfiguration = aServiceConfiguration;
 		factory = aFactory;
 	}
-	
+
 // Status
 	/**
 	 * @return Does current processor give answer for requests?
@@ -62,19 +65,18 @@ public class AWSClientRequestVisitor
 	public boolean isReactive () {
 		return true;
 	}
-	
+
 // Processing
 	@Override
 	public void visitStore (StoreClientRequest aRequest) {
 		S3Bucket bucket;
 		String name;
-		
+
 		try {
 			bucket = defaultBucket ();
 			name = "" + bucket.salt ();
 			bucket.storeFromPathAs (aRequest.getPath (), name);
 			aRequest.setResponse (new StoreMapperResponse (bucket.createURI (name)));
-			System.out.println (aRequest.response ().getURI ());
 		}
 		catch (AmazonServiceException e) {
 			aRequest.setException (new MapperExceptionResponse (e));
@@ -101,38 +103,100 @@ public class AWSClientRequestVisitor
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		assert aRequest.hasResponse () || aRequest.hasException (): "ensure: `aRequest' has a response or an exception.";
 	}
+
+
+	/**
+	 * Handle `aVisited'.
+	 * @pattern Visitor
+	 *
+	 * @param aVisited - request to process.
+	 */
 	
 	@Override
-	public void visitStartingInstances (StartingInstancesClientRequest aRequest) {
-		EC2InstancePool instance;
-		
+	public void visitRetrieve (RetrieveClientRequest aVisited) {
+		String [] partitionedPath;
+		ReadableByteChannel rbc;
+		FileOutputStream fos;
+		S3Bucket bucket;
+		S3ObjectURI uri;
+		String name;
+		URL url;
+
+		rbc = null;
+		fos = null;
 		try {
-			instance = newInstancePool ();
-			instance.launch (aRequest.getInstanceCount ());
-			aRequest.setResponse (new StartingInstancesMapperResponse (instance.count (), instance.privateKey (), instance.ids (), instance.ips ()));
+			if (aVisited.getSource ().startsWith (S3ObjectURI.protocol)) {
+				bucket = defaultBucket ();
+				uri = new S3ObjectURI (aVisited.getSource ());
+				bucket.storeToPath (uri.getId (), aVisited.getPath ());
+
+				aVisited.setResponse (new RetrieveMapperResponse (aVisited.getPath () + uri.getId ()));
+			}
+			else {
+				url = new URL (aVisited.getSource ());
+				partitionedPath = url.getPath ().split ("/");
+				name = partitionedPath [partitionedPath.length - 1];
+
+				rbc = Channels.newChannel (url.openStream ());
+				fos = new FileOutputStream (aVisited.getPath () + name);
+				fos.getChannel ().transferFrom (rbc, 0, Long.MAX_VALUE);
+
+				aVisited.setResponse (new RetrieveMapperResponse (aVisited.getPath () + name));
+			}
 		}
-		catch (AmazonServiceException e) {
+		catch (Exception e) {
+			aVisited.setException (new MapperExceptionResponse (e));
+		}
+		finally {
+			if (rbc != null) {
+				try {
+					rbc.close ();
+				}
+				catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+			if (fos != null) {
+				try {
+					fos.close ();
+				}
+				catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+
+	}
+
+	@Override
+	public void visitStartingInstances (StartingInstancesClientRequest aRequest) {
+		EC2InstancePool pool;
+		List <String> ips;
+
+		try {
+			pool = newInstancePool ();
+			pool.launch (aRequest.getInstanceCount ());
+
+			do {
+				Thread.sleep (8000);
+				ips = pool.ips ();
+			} while (ips.contains (null));
+
+			aRequest.setResponse (new StartingInstancesMapperResponse (pool.count (), pool.privateKey (), pool.ids (), ips));
+		}
+		catch (Exception e) {
 			aRequest.setException (new MapperExceptionResponse (e));
-			// TODO create an exception processor for logging
-			e.printStackTrace();
 		}
-		catch (UnparsableException e) {
-			aRequest.setException (new MapperExceptionResponse (e));
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (UnmatchableTypeException e) {
-			aRequest.setException (new MapperExceptionResponse (e));
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+
 		assert aRequest.hasResponse () || aRequest.hasException (): "ensure: `aRequest' has a response or an exception.";
 	}
-	
+
 	@Override
 	public void visitProjectTesting (DistributedProjectTestingClientRequest aVisited) {
 		@Nullable String [][] groups;
@@ -271,19 +335,19 @@ public class AWSClientRequestVisitor
 				assert false: "check: starting instances has an answer.";
 			}
 		}
-		
+
 		assert aVisited.hasResponse (): "ensure: `aRequest' has a response.";
 	}
-	
+
 // Implementation
 	/**
 	 * Service configuration.
 	 */
 	protected ServiceConfiguration serviceConfiguration;
-	
+
 	/**
 	 * Factory of mapped proxy.
 	 */
 	protected MappedProxyFactory factory;
-	
+
 }

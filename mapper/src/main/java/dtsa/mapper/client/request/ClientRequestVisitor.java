@@ -20,6 +20,14 @@ public abstract interface ClientRequestVisitor
 	 * Handle `aVisited'.
 	 * @pattern Visitor
 	 * 
+	 * @param aVisited - request to process.
+	 */
+	public abstract void visitRetrieve (RetrieveClientRequest aVisited);
+	
+	/**
+	 * Handle `aVisited'.
+	 * @pattern Visitor
+	 * 
 	 * @param aRequest - request to process.
 	 */
 	public abstract void visitStartingInstances (StartingInstancesClientRequest aVisited);
