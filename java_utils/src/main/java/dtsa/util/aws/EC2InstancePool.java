@@ -1,5 +1,6 @@
 package dtsa.util.aws;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
@@ -7,132 +8,150 @@ import java.util.function.Predicate;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.ec2.AmazonEC2;
-import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.AuthorizeSecurityGroupIngressRequest;
 import com.amazonaws.services.ec2.model.CreateKeyPairRequest;
 import com.amazonaws.services.ec2.model.CreateKeyPairResult;
 import com.amazonaws.services.ec2.model.CreateSecurityGroupRequest;
+import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
+import com.amazonaws.services.ec2.model.DescribeInstancesResult;
+import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.IpPermission;
 import com.amazonaws.services.ec2.model.KeyPair;
+import com.amazonaws.services.ec2.model.Reservation;
 import com.amazonaws.services.ec2.model.RunInstancesRequest;
 import com.amazonaws.services.ec2.model.RunInstancesResult;
 import com.amazonaws.services.ec2.model.SecurityGroup;
+import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
 
 import dtsa.util.annotation.Nullable;
 
 /**
- * 
+ *
  * @description EC2 instance
  * @author Victorien ELvinger
  * @date 2014/07/1
  *
  */
 public class EC2InstancePool {
-	
+
 // Creation
 	public EC2InstancePool (EC2InstanceConfiguration aConfiguration, AmazonEC2 aEc2) {
 		securityGroup = aConfiguration.getSecurityGroup ();
 		instanceType = aConfiguration.getInstanceType ();
 		location = aConfiguration.getRegion ();
 		imageId = aConfiguration.getImageId ();
-		ips = new LinkedList <> ();
 		ids = new LinkedList <> ();
 		ec2 = aEc2;
 		ec2.setEndpoint ("ec2." + aConfiguration.getRegion () + ".amazonaws.com");
-		
+
 		assert ec2 == aEc2: "ensure: `ec2' set with `aEc2'";
 		assert imageId ().equals (aConfiguration.getImageId ()): "ensure: `imageId' set with  `aConfiguration.getImageId'";
 		assert location ().equals (aConfiguration.getRegion ()): "ensure: `location' set with  `aConfiguration.getRegion'";
 		assert instanceType ().equals (aConfiguration.getInstanceType ()): "ensure: `instanceType' set with  `aConfiguration.getInstanceType'";
 	}
-	
+
 // Constant
 	/**
 	 * Key pair prefix.
 	 */
 	public final static String KeyPairPrefix = "dtsa-kp_";
-	
+
 	/**
 	 * Security group prefix.
 	 */
 	public final static String NewSecurityGroupPrefix = "dtsa-sg_";
-	
+
 	/**
 	 * Security group description.
 	 */
 	public final static String NewSecurityGroupDescription = "Temporary security group";
-	
+
 // Access
 	/**
-	 * 
+	 *
 	 * @return Image Id.
 	 */
 	public String imageId () {
 		return imageId;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return Instance type.
 	 */
 	public String instanceType () {
 		return instanceType;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return Location.
 	 */
 	public String location () {
 		return location;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return Security group.
 	 */
 	public SecuryGroupConfiguration securityGroup () {
 		return securityGroup;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return Number of instance running.
 	 */
 	public int count () {
 		return count;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return Private key.
 	 */
 	public @Nullable String privateKey () {
 		return privateKey;
 	}
-	
+
 	/**
 	 * @return IDs of instances.
 	 */
 	public List <String> ids () {
 		return ids;
 	}
-	
+
 	/**
-	 * @return Prublic IPs of instances.
+	 * @return list of public Ips or list with potential null value.
 	 */
 	public List <String> ips () {
-		return ips;
+		ArrayList <String> result = new ArrayList <> (ids.size ());
+
+		DescribeInstancesRequest dis = new DescribeInstancesRequest();
+		dis.setInstanceIds (ids);
+
+		DescribeInstancesResult disResult = ec2.describeInstances (dis);
+		List <Reservation> list  = disResult.getReservations();
+
+		for (Reservation res : list) {
+			List <Instance> instancelist = res.getInstances();
+			for (Instance instance : instancelist) {
+				result.add (instance.getPublicIpAddress ());
+			}
+		}
+
+		return result;
 	}
-	
+
 // Change
 	/**
-	 * 
+	 *
 	 * @param aCount - number of instance to launch
 	 */
 	public void launch (int aCount) throws AmazonServiceException {
 		assert aCount > 0: "require: `aCount' strictly positive.";
-		
+
 		createSecurityGroup ();
 		launchInstances (aCount);
 	}
@@ -167,44 +186,42 @@ public class EC2InstancePool {
 	 * Amazon EC2 service.
 	 */
 	protected AmazonEC2 ec2;
-	
+
 	/**
 	 * @see #imageId ()
 	 */
 	protected String imageId;
-	
+
 	/**
 	 * @see #instanceType ()
 	 */
 	protected String instanceType;
-	
+
 	/**
 	 * @see #location ()
 	 */
 	protected String location;
-	
+
 	/**
 	 * @see #securityGroup ()
 	 */
 	protected SecuryGroupConfiguration securityGroup;
-	
+
 	/**
 	 * @see #count ()
 	 */
 	protected int count;
-	
+
 	/**
 	 * @see #privateKey ()
 	 */
 	protected @Nullable String privateKey;
-	
+
 	/**
-	 * @see #ips ()
+	 * @see #ids()
 	 */
-	protected List <String> ips;
-	
 	protected List <String> ids;
-	
+
 	/**
 	 * Create security group `securityGroup' if not existing.
 	 */
@@ -256,16 +273,15 @@ public class EC2InstancePool {
                 .withMaxCount (aCount)
                 .withKeyName (uniqueKeyName)
                 .withSecurityGroups (securityGroup.getName ());
-		
+
 		instanceAnswer = ec2.runInstances (instanceRequest);
-		
+
 		for (Instance item : instanceAnswer.getReservation ().getInstances ()) {
 			ids.add (item.getInstanceId ());
-			ips.add (item.getPublicIpAddress ());
 		}
-		
+
 		count = aCount;
 		privateKey = keyPair.getKeyMaterial();
 	}
-	
+
 }

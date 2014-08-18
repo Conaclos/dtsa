@@ -1,18 +1,30 @@
 package dtsa.mapper.cloud.aws.base;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.ec2.AmazonEC2Client;
 
+import dtsa.mapped.client.request.ProjectTestingClientRequest;
+import dtsa.mapped.client.response.EchoMappedResponse;
+import dtsa.mapped.client.response.MappedExceptionResponse;
+import dtsa.mapped.client.response.ProjectTestingMappedResponse;
 import dtsa.mapper.base.ServiceConfiguration;
 import dtsa.mapper.client.request.ClientRequestVisitor;
-import dtsa.mapper.client.request.EchoClientRequest;
 import dtsa.mapper.client.request.DistributedProjectTestingClientRequest;
+import dtsa.mapper.client.request.EchoClientRequest;
+import dtsa.mapper.client.request.RetrieveClientRequest;
 import dtsa.mapper.client.request.StartingInstancesClientRequest;
 import dtsa.mapper.client.request.StoreClientRequest;
+import dtsa.mapper.client.response.DistributedProjectTestingMapperResponse;
 import dtsa.mapper.client.response.EchoMapperResponse;
 import dtsa.mapper.client.response.MapperExceptionResponse;
+import dtsa.mapper.client.response.RetrieveMapperResponse;
 import dtsa.mapper.client.response.StartingInstancesMapperResponse;
 import dtsa.mapper.client.response.StoreMapperResponse;
 import dtsa.mapper.cloud.mapped.base.MappedProxy;
@@ -29,11 +41,9 @@ import dtsa.util.configuration.UnmatchableTypeException;
 import dtsa.util.configuration.UnparsableException;
 import dtsa.util.file.DirectoryCompressionException;
 import dtsa.util.file.UnreachablePathException;
-import dtsa.mapped.client.request.ProjectCompilationClientRequest;
-import dtsa.mapped.client.response.EchoMappedResponse;
 
 /**
- * 
+ *
  * @description Processor for Amazon Web Service
  * @author Victorien ELvinger
  * @date 2014/06/26
@@ -114,7 +124,6 @@ public class AWSClientRequestVisitor
 	 *
 	 * @param aVisited - request to process.
 	 */
-	
 	@Override
 	public void visitRetrieve (RetrieveClientRequest aVisited) {
 		String [] partitionedPath;
@@ -203,10 +212,10 @@ public class AWSClientRequestVisitor
 		@Nullable StartingInstancesMapperResponse startingInstancesResponse;
 		@Nullable MapperExceptionResponse exception;
 		StartingInstancesClientRequest startingInstances;
-		ArrayList <MappedProxy> mappeds;
+		ArrayList <Response <? extends ResponseVisitor>> responses;
 		MappedProxy mapped;
 		int instanceCount;
-		
+
 		groups = aVisited.getClusters ();
 		if (groups != null) {
 			instanceCount = groups.length;
@@ -214,45 +223,82 @@ public class AWSClientRequestVisitor
 		else {
 			instanceCount = 1;
 		}
-		
+
 		startingInstances = new StartingInstancesClientRequest (instanceCount);
 		visitStartingInstances (startingInstances);
-		
+
 		startingInstancesResponse = startingInstances.response ();
 		exception = startingInstances.exception ();
 		if (startingInstancesResponse != null) {
+			@Nullable EC2InstancePool pool;
+
+			pool = null;
 			try {
-				mappeds = new ArrayList <> (startingInstancesResponse.getIds ().size ());
-				for (String id : startingInstancesResponse.getIds ()) {
-					mapped = factory.apply (serviceConfiguration.getPort (), 
-							new AWSInstanceAvailability (id, new AmazonEC2Client (defaultCredentials ()), 
-									5000));
+				ArrayList <MappedProxy> mappeds = new ArrayList <> (startingInstancesResponse.getIds ().size ());
+
+				for (String ip : startingInstancesResponse.getIps ()) {
+					mapped = factory.apply (serviceConfiguration.getPort (),
+							new AWSInstanceAvailability (ip));
 					mapped.start ();
 					mappeds.add (mapped);
 				}
-				
+
+				int i;
+				i = mappeds.size ();
 				for (MappedProxy item : mappeds) {
-					item.write (new ProjectCompilationClientRequest (aVisited.getUri (), aVisited.getProject (),
-							aVisited.getConfiguration (), aVisited.getTarget ()));
+					i--;
+					item.write (new ProjectTestingClientRequest (aVisited.getUri (), aVisited.getProject (),
+							aVisited.getConfiguration (), aVisited.getTarget (), aVisited.getTimeout (), groups [i]));
 				}
-				
+
+				long time = aVisited.getTimeout ()*60 + 20*60;
+				responses = new ArrayList <> (mappeds.size ());
 				for (MappedProxy item : mappeds) {
-					item.maybeNext (120000, 1800);
+					responses.add (item.maybeNext (120000, time));
+					time = 1; // Wait just for the first instance
 				}
+
+				i = responses.size ();
+				String [] uris = new String [i];
+				MappedExceptionResponse anormal;
+				ProjectTestingMappedResponse normal;
+				for (Response <? extends ResponseVisitor> item : responses) {
+					i--;
+					if (item != null) {
+						if (item.getClass () == ProjectTestingMappedResponse.class) {
+							normal = (ProjectTestingMappedResponse) item;
+							uris [i] = normal.getUri ();
+						}
+						else if (item.getClass () == MappedExceptionResponse.class) {
+							anormal = (MappedExceptionResponse) item;
+							System.out.println (anormal.getMessage ());
+						}
+						else {
+							assert false: "check: response unexpected";
+						}
+					}
+					else {
+						System.out.println ("error");
+					}
+				}
+
+				aVisited.setResponse (new DistributedProjectTestingMapperResponse (uris));
 			}
-			catch (UnparsableException e) {
+			catch (Exception e) {
 				aVisited.setException (new MapperExceptionResponse (e));
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-			catch (UnmatchableTypeException e) {
-				aVisited.setException (new MapperExceptionResponse (e));
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			finally {
+				try {
+					if (pool == null) {
+						pool = newInstancePool ();
+						pool.setIds (startingInstancesResponse.getIds ());
+					}
+					pool.terminate ();
+				}
+				catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 		else if (exception != null) {
@@ -261,50 +307,51 @@ public class AWSClientRequestVisitor
 		else {
 			assert false: "check: starting instances has an answer.";
 		}
-		
 	}
-	
+
 	@Override
 	public void visitEcho (EchoClientRequest aVisited) {
 		@Nullable StartingInstancesMapperResponse startingInstancesResponse;
 		StartingInstancesClientRequest startingInstances;
 		@Nullable MapperExceptionResponse exception;
-		ArrayList <MappedProxy> mappeds;
 		EchoMappedResponse response;
 		@Nullable Object temp;
-		AmazonEC2Client ec2;
 		MappedProxy mapped;
-		
+
+		startingInstancesResponse = null;
 		if (aVisited.getHop () == 1) {
+			System.out.println ("[Mapper] echo");
 			aVisited.setResponse (new EchoMapperResponse (aVisited.getId ()));
 		}
 		else {
 			startingInstances = new StartingInstancesClientRequest (1);
 			visitStartingInstances (startingInstances);
-			
+
 			startingInstancesResponse = startingInstances.response ();
 			exception = startingInstances.exception ();
 			if (startingInstancesResponse != null) {
+				@Nullable EC2InstancePool pool;
+
+				pool = null;
 				try {
-					mappeds = new ArrayList <> (startingInstancesResponse.getIds ().size ());
-					for (String id : startingInstancesResponse.getIds ()) {
-						ec2 = new AmazonEC2Client (defaultCredentials ());
-						ec2.setEndpoint ("ec2." + configuration.getEc2 ().getRegion () + ".amazonaws.com");
-						mapped = factory.apply (serviceConfiguration.getPort (), 
-								new AWSInstanceAvailability (id, ec2, 5000));
+					ArrayList <MappedProxy> mappeds = new ArrayList <> (startingInstancesResponse.getIds ().size ());
+
+					for (String ip : startingInstancesResponse.getIps ()) {
+						mapped = factory.apply (serviceConfiguration.getPort (),
+								new AWSInstanceAvailability (ip));
 						mapped.start ();
 						mappeds.add (mapped);
 					}
-					
+
 					for (MappedProxy item : mappeds) {
 						item.write (new dtsa.mapped.client.request.EchoClientRequest (aVisited.getId (), aVisited.getHop () - 1));
 					}
-					
+
 					temp = null;
 					for (MappedProxy item : mappeds) {
 						temp = item.maybeNext (120000, 1800);
 					}
-					
+
 					if (temp != null && temp.getClass () == EchoMappedResponse.class) {
 						response = (EchoMappedResponse) temp;
 						aVisited.setResponse (new EchoMapperResponse (response.getId ()));
@@ -313,19 +360,21 @@ public class AWSClientRequestVisitor
 						aVisited.setException (new MapperExceptionResponse ("No answer"));
 					}
 				}
-				catch (UnparsableException e) {
+				catch (Exception e) {
 					aVisited.setException (new MapperExceptionResponse (e));
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				}
-				catch (UnmatchableTypeException e) {
-					aVisited.setException (new MapperExceptionResponse (e));
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				finally {
+					try {
+						if (pool == null) {
+							pool = newInstancePool ();
+							pool.setIds (startingInstancesResponse.getIds ());
+						}
+						pool.terminate ();
+					}
+					catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			}
 			else if (exception != null) {
