@@ -17,8 +17,7 @@ create
 feature {NONE} -- Creation
 
 	make (a_uri: like uri)
-			-- Create a store response with `a_uri' as `uri'
-			-- and `a_md5' as `md5'.
+			-- Create a store response with `a_uri' as `uri'.
 		do
 			uri := a_uri
 		ensure

@@ -41,7 +41,7 @@ feature {NONE} -- cReation
 	make (a_uri, a_configuration, a_project, a_target: READABLE_STRING_8; a_clusters: like clusters)
 			-- Create a project testing request with a default timeout.
 		do
-			make_with_timeout (a_uri, a_project, a_configuration, a_target, clusters, Default_timeout)
+			make_with_timeout (a_uri, a_project, a_configuration, a_target, a_clusters, Default_timeout)
 		ensure
 			uri_set: uri = a_uri
 			project_set: project = a_project
@@ -74,7 +74,7 @@ feature -- Access
 	timeout: INTEGER_32
 			-- Time for testing in minutes.
 
-	clusters: detachable ARRAYED_LIST [ARRAYED_LIST [STRING]]
+	clusters: detachable ARRAYED_LIST [ARRAYED_LIST [READABLE_STRING_8]]
 			-- Class clusters.
 			-- Void means no clusters.
 

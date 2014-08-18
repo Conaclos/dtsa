@@ -15,9 +15,21 @@ inherit
 		end
 
 	EXCEPTION
+		rename
+			message as obsolete_message,
+			description as message
+		end
 
 create
-	default_create
+	make
+
+feature {NONE} -- Initialization
+
+	make (a_message: like message)
+			-- Create a exception response with `a_message' as `message'.
+		do
+			set_description (a_message)
+		end
 
 feature -- Processing
 

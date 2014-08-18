@@ -45,4 +45,8 @@ feature -- Processing
 			-- Visit `a_visited'.
 		deferred end
 
+	visit_retrieve (a_visited: DTSA_RETRIEVE_RESPONSE)
+			-- Visit `a_visited'.
+		deferred end
+
 end

@@ -1,11 +1,11 @@
 note
-	description: "Echo message for an echo request."
+	description: "Summary description for {DTSA_RETRIEVE_RESPONSE}."
 	author: "Victorien Elvinger"
 	date: "$Date$"
 	revision: "$Revision$"
 
 class
-	DTSA_ECHO_RESPONSE
+	DTSA_RETRIEVE_RESPONSE
 
 inherit
 	DTSA_RESPONSE
@@ -15,25 +15,25 @@ create
 
 feature {NONE} -- Creation
 
-	make (a_id: like id)
-			-- Create with `a_id' as `id'.
+	make (a_uri: like uri)
+			-- Create with `a_uri' as `uri'.
 		do
-			id := a_id
+			uri := a_uri
 		ensure
-			id_set: id = a_id
+			uri_set: uri = a_uri
 		end
 
 feature -- Acceess
 
-	id: INTEGER_8
-			-- Echo id.
+	uri: READABLE_STRING_GENERAL
+			-- Stored entity URI.
 
 feature -- Processing
 
 	acept (a_visitor: DTSA_RESPONSE_VISITOR)
 			-- <Precursor>
 		do
-			a_visitor.visit_echo (Current)
+			a_visitor.visit_retrieve (Current)
 		end
 
 end

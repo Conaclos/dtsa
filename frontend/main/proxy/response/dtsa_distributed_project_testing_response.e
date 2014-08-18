@@ -12,23 +12,31 @@ inherit
 	DTSA_RESPONSE
 
 create
+	make_singleton,
 	make
 
 feature {NONE} -- Creation
 
-	make (a_uri: like uri)
-			-- Create a store response with `a_uri' as `uri'
-			-- and `a_md5' as `md5'.
+	make_singleton (a_uri: READABLE_STRING_GENERAL)
 		do
-			uri := a_uri
+			create {ARRAYED_LIST [READABLE_STRING_GENERAL]} uris.make (1)
+			uris.extend (a_uri)
 		ensure
-			uri_set: uri = a_uri
+			uri_added: uris [1].same_string (a_uri)
+		end
+
+	make (a_uris: like uris)
+			-- Create a store response with `a_uris' as `uris'.
+		do
+			uris := a_uris
+		ensure
+			a_uris_set: uris = a_uris
 		end
 
 feature -- Access
 
-	uri: READABLE_STRING_GENERAL
-			-- Stored entity URI.
+	uris: LIST [READABLE_STRING_GENERAL]
+			-- Results of the distributed testing session.
 
 feature -- Processing
 
