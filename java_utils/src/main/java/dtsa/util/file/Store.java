@@ -239,7 +239,7 @@ public abstract class Store {
 			Exception {
 		File f = new File (aPath);
 		
-		if (f.exists ()) {
+		if (f.exists () && f.isDirectory ()) {
 			storeTo (aName, f);
 		}
 		else {
