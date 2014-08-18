@@ -1,5 +1,5 @@
 {
-	"port": 2014,
+	"port": 2015,
 	"exceptionLogging": true,
 	"client": {
 		"timeout": 50,
