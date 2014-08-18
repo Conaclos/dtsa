@@ -29,7 +29,7 @@ public class StoreMapperResponse
 	 * 
 	 * @return Stored entity URI.
 	 */
-	public @Nullable String getURI () {
+	public String getURI () {
 		return URI;
 	}
 	
@@ -43,6 +43,6 @@ public class StoreMapperResponse
 	/**
 	 * Stored entity URI.
 	 */
-	protected @Nullable String URI;
+	protected String URI;
 	
 }
