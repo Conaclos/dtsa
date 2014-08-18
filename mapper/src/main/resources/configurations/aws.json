@@ -6,8 +6,8 @@
 		"isPublic": false
 	},
 	"ec2": {
-		"imageId": "ami-c5ba69b2",
-		"instanceType": "m3.medium",
+		"imageId": "ami-70518d07",
+		"instanceType": "m3.2xlarge",
 		"securityGroup": {
 			"name": "dtsa",
 			"prefixedIp": "0.0.0.0/0",
