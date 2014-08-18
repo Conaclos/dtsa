@@ -57,14 +57,9 @@ public class StoreClientRequest
 		boolean result;
 		
 		if (getClass () == aOther.getClass ()) {
-			@Nullable String otherPath = ((StoreClientRequest) aOther).getPath ();
+			StoreClientRequest temp = (StoreClientRequest) aOther;
 			
-			if (otherPath != null) {
-				result = otherPath.equals (path);
-			}
-			else {
-				result = path != null;
-			}
+			result = path.equals (temp.getPath ());
 		}
 		else {
 			result = false;
