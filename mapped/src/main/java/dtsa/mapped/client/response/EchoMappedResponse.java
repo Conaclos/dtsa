@@ -1,5 +1,8 @@
 package dtsa.mapped.client.response;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * 
  * @description Echo message.
@@ -15,7 +18,8 @@ public class EchoMappedResponse
 	 * 
 	 * @param aId - {@link #getId ()}
 	 */
-	public EchoMappedResponse (int aId) {
+	@JsonCreator
+	public EchoMappedResponse (@JsonProperty ("id") int aId) {
 		id = aId;
 		
 		assert id == aId: "ensure: set `id' with `aId'.";

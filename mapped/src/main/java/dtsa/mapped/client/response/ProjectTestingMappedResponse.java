@@ -1,5 +1,8 @@
 package dtsa.mapped.client.response;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * 
  * @description 
@@ -15,7 +18,8 @@ public class ProjectTestingMappedResponse
 	 * 
 	 * @param aUri - {@link #getUri ()}
 	 */
-	public ProjectTestingMappedResponse (String aUri) {
+	@JsonCreator
+	public ProjectTestingMappedResponse (@JsonProperty ("uri") String aUri) {
 		uri = aUri;
 		
 		assert getUri () == aUri: "ensure: `getUri' set with `aUri'.";
