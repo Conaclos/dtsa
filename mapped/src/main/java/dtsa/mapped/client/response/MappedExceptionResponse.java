@@ -1,6 +1,7 @@
 package dtsa.mapped.client.response;
 
-import dtsa.util.annotation.NonNull;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import dtsa.util.communication.base.ExceptionResponse;
 
 /**
@@ -21,6 +22,15 @@ public class MappedExceptionResponse
 	public MappedExceptionResponse (Exception e) {
 		message = e.getMessage ();
 	}
+
+	/**
+	 * Create a response from `aMessage'.
+	 * @param aMessage - {@link #getMessage ()}
+	 */
+	@JsonCreator
+	public MappedExceptionResponse (@JsonProperty ("message") String aMessage) {
+		message = aMessage;
+	}	
 	
 // Access
 	/**
