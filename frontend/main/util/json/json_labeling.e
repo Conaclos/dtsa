@@ -8,7 +8,7 @@ class
 	JSON_LABELING [EXPECTED -> ANY]
 
 inherit
-	
+
 	SHARED_EJSON
 		undefine
 			default_create
@@ -56,6 +56,17 @@ feature -- Conversion
 		do
 			if
 				attached {LABELED_VALUE} json.object (j, {LABELED_VALUE}) as l_labeled and then
+				attached labeled_types.item (l_labeled.label) as l_type and then
+				attached {EXPECTED} json.object_from_json (l_labeled.value, l_type) as l_result
+			then
+				Result := l_result
+			end
+		end
+
+	from_json_value (j: STRING_8): detachable EXPECTED
+		do
+			if
+				attached {LABELED_VALUE} json.object_from_json (j, {LABELED_VALUE}) as l_labeled and then
 				attached labeled_types.item (l_labeled.label) as l_type and then
 				attached {EXPECTED} json.object_from_json (l_labeled.value, l_type) as l_result
 			then
