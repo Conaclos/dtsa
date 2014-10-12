@@ -8,18 +8,18 @@ import dtsa.mapper.client.response.MapperExceptionResponse;
 import dtsa.util.annotation.Nullable;
 
 /**
- * 
+ *
  * @description Request for an echo message. Allow to test layout connection.
  * @author Victorien ELvinger
  * @date 2014
  *
  */
-public class EchoClientRequest 
+public class EchoClientRequest
 	extends ClientRequest {
 
 // Creation
 	/**
-	 * 
+	 *
 	 * @param aId - {@link #getId ()}
 	 * @param aHop - {@link #getHop ()}
 	 */
@@ -32,23 +32,23 @@ public class EchoClientRequest
 		else {
 			hop = aHop;
 		}
-		
+
 		assert id == aId: "ensure: set `id' with `aId'.";
 		assert aHop >= MinimalHop || hop == MinimalHop: "ensure: `hop' set with `MinimalHop'.";
 		assert aHop < MinimalHop || hop == aHop: "ensure: `hop' set with `aHop'.";
 	}
 	/**
-	 * 
+	 *
 	 * @param aId - {@link #getId ()}
 	 */
 	public EchoClientRequest (int aId) {
 		id = aId;
 		hop = MinimalHop;
-		
+
 		assert id == aId: "ensure: set `id' with `aId'.";
 		assert hop == MinimalHop: "ensure: `hop' set with `MinimalHop'.";
 	}
-	
+
 // Access
 	/**
 	 * @return Message id.
@@ -56,16 +56,16 @@ public class EchoClientRequest
 	public int getId () {
 		return id;
 	}
-	
+
 	public final static int MinimalHop = 1;
-	
+
 	/**
 	 * @return Hop Number.
 	 */
 	public int getHop () {
 		return hop;
 	}
-	
+
 	@Override
 	public @Nullable EchoMapperResponse response () {
 		return response;
@@ -80,7 +80,7 @@ public class EchoClientRequest
 	@Override
 	public boolean partialEquals (Object aOther) {
 		boolean result;
-		
+
 		if (getClass () == aOther.getClass ()) {
 			EchoClientRequest temp = (EchoClientRequest) aOther;
 			result = temp.getHop () == hop && temp.getId () == id;
@@ -88,10 +88,10 @@ public class EchoClientRequest
 		else {
 			result = false;
 		}
-		
+
 		return result;
 	}
-	
+
 // Change
 	/**
 	 * Set `response' with `aResponse'
@@ -99,19 +99,19 @@ public class EchoClientRequest
 	 */
 	public void setResponse (EchoMapperResponse aResponse) {
 		assert ! hasException (): "require: has not exception.";
-		
+
 		response = aResponse;
-		
+
 		assert response () == aResponse: "ensure: `response' set with `aResponse'.";
 	}
-	
+
 	/**
 	 * Set `exception' with `aException'.
 	 * @param aException - {@link #exception()}
 	 */
 	public void setException (MapperExceptionResponse aException) {
 		assert ! hasResponse (): "require: has not response.";
-		
+
 		exception = aException;
 
 		assert exception () == aException: "ensure: `exception' set with `aException'.";
@@ -121,22 +121,24 @@ public class EchoClientRequest
 	@Override
 	public void accept (ClientRequestVisitor aProcessor) {
 		aProcessor.visitEcho (this);
+
+		assert aProcessor.isReactive () == (hasResponse () || hasException ()): "ensure: responded if `aProcessor' is reactive.";
 	}
-	
+
 // Implementation
 	/**
 	 * @see #response ()
 	 */
 	protected @Nullable EchoMapperResponse response;
-	
+
 	/**
 	 * @see #getId ()
 	 */
 	protected int id;
-	
+
 	/**
 	 * @see #getHop ()
 	 */
 	protected int hop;
-	
+
 }

@@ -5,6 +5,7 @@ import org.picocontainer.MutablePicoContainer;
 import dtsa.mapper.client.base.MockMapperResponseVisitor;
 import dtsa.mapper.client.request.DistributedProjectTestingClientRequest;
 import dtsa.mapper.client.request.EchoClientRequest;
+import dtsa.mapper.client.request.ResultMergingClientRequest;
 import dtsa.mapper.client.request.RetrieveClientRequest;
 import dtsa.mapper.client.request.StartingInstancesClientRequest;
 import dtsa.mapper.client.request.StoreClientRequest;
@@ -71,6 +72,7 @@ public class MapperApplication
 		json2Request.add ("echo", EchoClientRequest.class);
 		json2Request.add ("store", StoreClientRequest.class);
 		json2Request.add ("retrieve", RetrieveClientRequest.class);
+		json2Request.add ("merge", ResultMergingClientRequest.class);
 		json2Request.add ("starting_instances", StartingInstancesClientRequest.class);
 		json2Request.add ("distributed_testing", DistributedProjectTestingClientRequest.class);
 		mutableInjector.addComponent (json2Request);

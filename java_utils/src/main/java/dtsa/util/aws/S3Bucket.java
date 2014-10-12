@@ -24,10 +24,10 @@ import dtsa.util.file.UntwinableObjectException;
  */
 public class S3Bucket
 		extends Store {
-	
+
 // Creation
 	/**
-	 * 
+	 *
 	 * @param aName
 	 *            - Bucket name.
 	 * @param aLocation
@@ -45,42 +45,42 @@ public class S3Bucket
 		if (! s3.doesBucketExist (id)) {
 			s3.createBucket (id, location);
 		}
-		
+
 		assert id == aConfiguration.getBucket (): "ensure: `name' set with `aName'";
 		assert s3 == aS3: "ensure: `s3' set with `aS3'";
 		assert isPublic == aConfiguration.isPublic (): "ensure: `access' set with `aAccess'";
 		assert location == aConfiguration.getRegion (): "ensure: `location' set with `aLocation'";
 	}
-	
+
 // Access
 	/**
-	 * 
+	 *
 	 * @return Bucket location.
 	 */
 	public String location () {
 		return location;
 	}
-	
+
 	/**
 	 * Note: Generate a new URI for `aName'.
 	 * @side-effect
-	 * 
+	 *
 	 * @return RI of `aName'.
 	 * @throws AmazonServiceException
 	 */
 	public String createURI (String aName) throws AmazonServiceException {
 		String result;
-		
+
 		if (isPublic) {
 			result = s3.generatePresignedUrl (new GeneratePresignedUrlRequest (id, aName)).toString ();
 		}
 		else {
 			result = (new S3ObjectURI (location, id, aName)).toString ();
 		}
-		
+
 		return result;
 	}
-	
+
 // Change (remote and local)
 	@Override
 	public void storeFromPath (String aPath) throws UnreachablePathException, DirectoryCompressionException, AmazonServiceException {
@@ -116,7 +116,7 @@ public class S3Bucket
 			}
 		}
 	}
-	
+
 	@Override
 	public void store (File aFile) throws DirectoryCompressionException, AmazonServiceException {
 		try {
@@ -134,7 +134,7 @@ public class S3Bucket
 			}
 		}
 	}
-	
+
 	@Override
 	public void storeAs (File aFile, String aName) throws DirectoryCompressionException, AmazonServiceException {
 		try {
@@ -152,7 +152,7 @@ public class S3Bucket
 			}
 		}
 	}
-	
+
 	@Override
 	public void storeDirectoryAs (File aDirectory, String aName) throws DirectoryCompressionException, AmazonServiceException {
 		try {
@@ -167,16 +167,16 @@ public class S3Bucket
 			}
 		}
 	}
-	
+
 	@Override
 	public void storePlainFileAs (File aPlainFile, String aName) throws AmazonServiceException {
 		assert aPlainFile.exists (): "require: `aPlainFile' exists.";
 		assert ! aPlainFile.isDirectory (): "require: `aPlainFile' denotes a plain file.";
-		
+
 		PutObjectResult objectResult;
 		PutObjectRequest objectRequest;
 		CannedAccessControlList permission;
-		
+
 		if (isPublic) {
 			permission = CannedAccessControlList.PublicRead;
 		}
@@ -186,7 +186,7 @@ public class S3Bucket
 		objectRequest = new PutObjectRequest (id, aName, aPlainFile).withCannedAcl (permission);
 		objectResult = s3.putObject (objectRequest);
 	}
-	
+
 // Change (local)
 	@Override
 	public void storeToPath (String aName, String aPath) throws UnreachablePathException, UnreachableObjectException, UntwinableObjectException, AmazonServiceException {
@@ -205,9 +205,9 @@ public class S3Bucket
 			}
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param aName
 	 * @return
 	 */
@@ -215,31 +215,31 @@ public class S3Bucket
 	public void storeTo (String aName, File aDirectory) throws UnreachableObjectException, UntwinableObjectException, AmazonServiceException {
 		assert aDirectory.exists (): "require: `aDirectory' exists.";
 		assert aDirectory.isDirectory (): "require: `aDirectory' denotes a directory." + aDirectory.getPath ();
-		
+
 		s3.getObject (new GetObjectRequest (id, aName), new File (aDirectory, aName));
 	}
-	
+
 // Removal
 	@Override
 	public void remove (String aName) throws AmazonServiceException {
 		s3.deleteObject (id, aName);
 	}
-	
+
 // Implementation
 	/**
 	 * S3 service.
 	 */
 	protected final AmazonS3 s3;
-	
+
 	/**
 	 * Bucket location.
 	 */
 	protected final String location;
-	
+
 	/**
 	 * Access permission for future stored files.
 	 * Null means private.
 	 */
 	protected final boolean isPublic;
-	
+
 }

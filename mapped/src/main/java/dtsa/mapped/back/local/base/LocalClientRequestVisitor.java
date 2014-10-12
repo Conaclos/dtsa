@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
@@ -194,24 +195,28 @@ public class LocalClientRequestVisitor
 		if (compilation.hasResponse ()) {
 			assert aVisited.getTimeout () > 0: "check: timeout is strictly positive.";
 
+			ArrayList <String> cmds = new ArrayList <> (18 + aVisited.getClasses ().length);
+
+			cmds.add (localConfiguration.getEc ());
+			cmds.add ("-project_path"); cmds.add (localConfiguration.getWorkspace () + aVisited.getProject ());
+			cmds.add ("-config"); cmds.add (localConfiguration.getWorkspace () + aVisited.getConfiguration ());
+
+			cmds.add ("-auto_test");
+			cmds.add ("-i");
+			cmds.add ("-f");
+			cmds.add ("-t"); cmds.add ("" + aVisited.getTimeout ());
+			cmds.add ("--agents"); cmds.add ("none");
+			cmds.add ("--state"); cmds.add ("argumentless");
+			cmds.add ("--serialization"); cmds.add ("FAILING");
+
 			classes = "";
 			for (String item : aVisited.getClasses ()) {
+				cmds.add (item);
 				classes = classes + item + " ";
 			}
 			classes = classes.substring (0, classes.length () - 1);
 
-			builder = new ProcessBuilder (localConfiguration.getEc (),
-					"-project_path", localConfiguration.getWorkspace () + aVisited.getProject (),
-					"-config", localConfiguration.getWorkspace () + aVisited.getConfiguration (),
-					"-target", aVisited.getTarget (),
-					"-auto_test",
-					"-i",
-					"-f",
-					"--agents", "none",
-					"-t", "" + aVisited.getTimeout (),
-					"--state", "argumentless",
-					"--serialization", "FAILING",
-					classes);
+			builder = new ProcessBuilder (cmds);
 
 			logger.info (Arrays.toString (new String [] {localConfiguration.getEc (),
 				"-project_path", localConfiguration.getWorkspace () + aVisited.getProject (),

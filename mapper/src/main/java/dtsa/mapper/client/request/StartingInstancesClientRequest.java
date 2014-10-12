@@ -8,15 +8,15 @@ import dtsa.mapper.client.response.StartingInstancesMapperResponse;
 import dtsa.util.annotation.Nullable;
 
 /**
- * 
+ *
  * @description Request for launching a pool of identical instance.
  * @author Victorien ELvinger
  * @date 2014/07/1
  *
  */
-public class StartingInstancesClientRequest 
+public class StartingInstancesClientRequest
 	extends ClientRequest {
-	
+
 // Creation
 	/**
 	 * Create a store request with `aCount' as `getInstanceNumber'.
@@ -25,21 +25,21 @@ public class StartingInstancesClientRequest
 	@JsonCreator
 	public StartingInstancesClientRequest (@JsonProperty ("instanceCount") int aCount) {
 		assert aCount > 0: "require: `aCount' is strictly positive";
-		
+
 		instanceCount = aCount;
-		
+
 		assert getInstanceCount () == aCount: "ensure: `getInstanceNumber' set with `aCount'.";
 	}
 
 // Access
 	/**
-	 * 
+	 *
 	 * @return Instance number to launch.
 	 */
 	public int getInstanceCount () {
 		return instanceCount;
 	}
-	
+
 	@Override
 	public @Nullable StartingInstancesMapperResponse response () {
 		return response;
@@ -48,7 +48,7 @@ public class StartingInstancesClientRequest
 	@Override
 	public StartingInstancesClientRequest partialCLone () {
 		StartingInstancesClientRequest result;
-		
+
 		result = new StartingInstancesClientRequest (instanceCount);
 
 		assert this != result: "current object and result have not the same reference.";
@@ -60,10 +60,10 @@ public class StartingInstancesClientRequest
 	@Override
 	public boolean partialEquals (Object aOther) {
 		boolean result;
-		
-		result = getClass () == aOther.getClass () && 
+
+		result = getClass () == aOther.getClass () &&
 				instanceCount == ((StartingInstancesClientRequest) aOther).getInstanceCount ();
-		
+
 		assert (! result) || (getClass () == aOther.getClass ()): "ensure: equal implies same type.";
 		assert getClass () == aOther.getClass () || (! result): "esnure: different type implies not equal";
 		return result;
@@ -73,8 +73,10 @@ public class StartingInstancesClientRequest
 	@Override
 	public void accept (ClientRequestVisitor aProcessor) {
 		aProcessor.visitStartingInstances (this);
+
+		assert aProcessor.isReactive () == (hasResponse () || hasException ()): "ensure: responded if `aProcessor' is reactive.";
 	}
-	
+
 // Change
 	/**
 	 * Set `response' with `aResponse'
@@ -82,33 +84,33 @@ public class StartingInstancesClientRequest
 	 */
 	public void setResponse (StartingInstancesMapperResponse aResponse) {
 		assert ! hasException (): "require: has not exception.";
-		
+
 		response = aResponse;
-		
+
 		assert response () == aResponse: "ensure: `response' set with `aResponse'.";
 	}
-	
+
 	/**
 	 * Set `exception' with `aException'.
 	 * @param aException - {@link #exception()}
 	 */
 	public void setException (MapperExceptionResponse aException) {
 		assert ! hasResponse (): "require: has not response.";
-		
+
 		exception = aException;
 
 		assert exception () == aException: "ensure: `exception' set with `aException'.";
 	}
-	
-// Implementation	
+
+// Implementation
 	/**
 	 * Instance number to launch.
 	 */
 	protected int instanceCount;
-	
+
 	/**
 	 * Answer of this current request.
 	 */
 	protected @Nullable StartingInstancesMapperResponse response;
-	
+
 }

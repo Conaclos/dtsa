@@ -229,27 +229,32 @@ public class EC2InstancePool {
 		AuthorizeSecurityGroupIngressRequest authorization;
 		CreateSecurityGroupRequest sgRequest;
 		Predicate <SecurityGroup> predicate;
-		IpPermission ipPermission;
-		
+		IpPermission ipPermission, icmpPermission;
+
 		predicate = (SecurityGroup sg) -> sg.getGroupName ().equals (securityGroup.getName ());
 		if (ec2.describeSecurityGroups ().getSecurityGroups ().stream ().noneMatch (predicate)) {
 			sgRequest = new CreateSecurityGroupRequest()
 					.withGroupName (securityGroup.getName ())
 					.withDescription (NewSecurityGroupDescription);
 			ec2.createSecurityGroup (sgRequest);
-			
+
 			ipPermission = new IpPermission()
 					.withIpRanges (securityGroup.getPrefixedIp ())
 					.withIpProtocol ("tcp")
 					.withFromPort(securityGroup.getFromPort ()).withToPort (securityGroup.getToPort ());
-			
+
+			icmpPermission = new IpPermission()
+					.withIpRanges (securityGroup.getPrefixedIp ())
+					.withIpProtocol ("icmp")
+					.withFromPort(-1).withToPort (-1); // All ICMP types.
+
 			authorization = new AuthorizeSecurityGroupIngressRequest ()
 					.withGroupName(securityGroup.getName ())
-					.withIpPermissions (ipPermission);
+					.withIpPermissions (ipPermission, icmpPermission);
 			ec2.authorizeSecurityGroupIngress (authorization);
 		}
 	}
-	
+
 	protected void launchInstances (int aCount) {
 		assert aCount > 0: "require: `aCount' strictly positive.";
 
@@ -262,10 +267,10 @@ public class EC2InstancePool {
 
 		milliseconds = Calendar.getInstance ().getTime ().getTime ();
 		uniqueKeyName = KeyPairPrefix + milliseconds;
-		
+
 		keyPairAnswer = ec2.createKeyPair(new CreateKeyPairRequest().withKeyName(uniqueKeyName));
 		keyPair = keyPairAnswer.getKeyPair();
-		
+
 		instanceRequest = new RunInstancesRequest()
 				.withImageId (imageId)
                 .withInstanceType (instanceType)

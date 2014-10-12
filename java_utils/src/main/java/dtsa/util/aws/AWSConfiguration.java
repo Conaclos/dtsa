@@ -3,6 +3,8 @@ package dtsa.util.aws;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import dtsa.util.annotation.Nullable;
+
 /**
  * 
  * @description AWS general configuration
@@ -54,15 +56,36 @@ public class AWSConfiguration {
 	/**
 	 * @return AWS S3 configuration.
 	 */
-	public S3BucketConfiguration getS3 () {
+	public @Nullable S3BucketConfiguration getS3 () {
 		return s3;
 	}
 	
 	/**
 	 * @return AWS EC2 configuration.
 	 */
-	public EC2InstanceConfiguration getEc2 () {
+	public @Nullable EC2InstanceConfiguration getEc2 () {
 		return ec2;
+	}
+	
+// Change
+	/**
+	 * 
+	 * @param aS3 - {@link #getS3 ()}
+	 */
+	public void setS3 (S3BucketConfiguration aS3) {
+		assert s3 == null: "require: `s3' is not initialized";
+		
+		s3 = aS3;
+	}
+	
+	/**
+	 * 
+	 * @param aEc2 - {@link #getEc2 ()}
+	 */
+	public void setEc2 (EC2InstanceConfiguration aEc2) {
+		assert ec2 == null: "require: `s3' is not initialized";
+		
+		ec2 = aEc2;
 	}
 	
 // Implementation
@@ -74,11 +97,11 @@ public class AWSConfiguration {
 	/**
 	 * @see #getS3 ()
 	 */
-	protected S3BucketConfiguration s3;
+	protected @Nullable S3BucketConfiguration s3;
 	
 	/**
 	 * @see #getEc2 ()
 	 */
-	protected EC2InstanceConfiguration ec2;
+	protected @Nullable EC2InstanceConfiguration ec2;
 	
 }

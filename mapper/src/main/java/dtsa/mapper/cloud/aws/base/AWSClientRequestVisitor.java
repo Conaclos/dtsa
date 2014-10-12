@@ -1,12 +1,21 @@
 package dtsa.mapper.cloud.aws.base;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+
+import net.lingala.zip4j.core.ZipFile;
 
 import com.amazonaws.AmazonServiceException;
 
@@ -18,6 +27,7 @@ import dtsa.mapper.base.ServiceConfiguration;
 import dtsa.mapper.client.request.ClientRequestVisitor;
 import dtsa.mapper.client.request.DistributedProjectTestingClientRequest;
 import dtsa.mapper.client.request.EchoClientRequest;
+import dtsa.mapper.client.request.ResultMergingClientRequest;
 import dtsa.mapper.client.request.RetrieveClientRequest;
 import dtsa.mapper.client.request.StartingInstancesClientRequest;
 import dtsa.mapper.client.request.StoreClientRequest;
@@ -65,6 +75,21 @@ public class AWSClientRequestVisitor
 		serviceConfiguration = aServiceConfiguration;
 		factory = aFactory;
 	}
+
+// Constants
+	/**
+	 * Interesting result directory for DTSA.
+	 */
+	public final static String resultDirectory = "auto_test/log/";
+
+	/**
+	 * Interesting result files for DTSA.
+	 */
+	public final static String [] resultFiles = new String [] {
+		"serialization.txt",
+		"statistics.txt",
+		"error.log"
+	};
 
 // Status
 	/**
@@ -129,20 +154,32 @@ public class AWSClientRequestVisitor
 		String [] partitionedPath;
 		ReadableByteChannel rbc;
 		FileOutputStream fos;
-		S3Bucket bucket;
-		S3ObjectURI uri;
-		String name;
+		S3ObjectURI object;
+		ZipFile zip;
+		String name, uri, resultUri;
+		File f;
 		URL url;
 
 		rbc = null;
 		fos = null;
 		try {
-			if (aVisited.getSource ().startsWith (S3ObjectURI.protocol)) {
-				bucket = defaultBucket ();
-				uri = new S3ObjectURI (aVisited.getSource ());
-				bucket.storeToPath (uri.getId (), aVisited.getPath ());
+			uri = directoryUriFrom (aVisited.getPath ());
 
-				aVisited.setResponse (new RetrieveMapperResponse (aVisited.getPath () + uri.getId ()));
+			if (aVisited.getSource ().startsWith (S3ObjectURI.protocol)) {
+				object = new S3ObjectURI (aVisited.getSource ());
+
+				name = object.getId ();
+				defaultBucket ().storeToPath (name, uri);
+
+				zip = new ZipFile (uri + name);
+				resultUri = directoryUriFrom (uri + "unzipped_" + name);
+				f = new File (resultUri);
+				f.mkdir ();
+				zip.extractAll (resultUri);
+
+				f = new File (uri + name);
+				assert ! f.isDirectory (): "check: " + aVisited.getPath () + name + " is not a directory";
+				f.delete ();
 			}
 			else {
 				url = new URL (aVisited.getSource ());
@@ -153,8 +190,21 @@ public class AWSClientRequestVisitor
 				fos = new FileOutputStream (aVisited.getPath () + name);
 				fos.getChannel ().transferFrom (rbc, 0, Long.MAX_VALUE);
 
-				aVisited.setResponse (new RetrieveMapperResponse (aVisited.getPath () + name));
+				if (! url.getProtocol ().equals ("file")) {
+					zip = new ZipFile (uri + name);
+					resultUri = directoryUriFrom (uri + "unzipped_" + name);
+					zip.extractAll (resultUri);
+
+					f = new File (uri + name);
+					assert ! f.isDirectory (): "check: " + aVisited.getPath () + name + " is not a directory";
+					f.delete ();
+				}
+				else {
+					resultUri = uri;
+				}
 			}
+
+			aVisited.setResponse (new RetrieveMapperResponse (resultUri));
 		}
 		catch (Exception e) {
 			aVisited.setException (new MapperExceptionResponse (e));
@@ -180,7 +230,67 @@ public class AWSClientRequestVisitor
 				}
 			}
 		}
+	}
 
+	@Override
+	public void visitResultMerging (ResultMergingClientRequest aVisited) {
+		ArrayList <RetrieveMapperResponse> responses = new ArrayList <> (aVisited.getUris ().length);
+		RetrieveClientRequest temp;
+		ArrayList <File> files = new ArrayList <> (aVisited.getUris ().length);
+		String dirUri;
+		File f;
+
+		try {
+			for (String uri : aVisited.getUris ()) {
+				temp = new RetrieveClientRequest (aVisited.getPath (), uri);
+				visitRetrieve (temp);
+				if (temp.response () != null) {
+					responses.add (temp.response ());
+				}
+				else if (temp.exception () != null) {
+					aVisited.setException (temp.exception ());
+					break;
+				}
+				else {
+					assert false: "check: has response or exception.";
+				}
+			}
+/*
+			while (responses.size () > 10) {
+				responses.remove (responses.size () - 1);
+				System.out.println ("removing");
+			}
+*/
+			if (! aVisited.hasException ()) {
+				dirUri = directoryUriFrom (aVisited.getPath ()) + resultDirectory;
+				f = new File (dirUri);
+				if (! f.exists ()) {
+					f.mkdir ();
+				}
+
+				for (String relativeFileNames : resultFiles) {
+					for (RetrieveMapperResponse r : responses) {
+						files.add (new File (r.getUri () + resultDirectory + relativeFileNames));
+					}
+
+					mergeFiles (new File (dirUri + relativeFileNames), files);
+					files.clear ();
+				}
+
+				for (RetrieveMapperResponse r : responses) {
+					f = new File (r.getUri ());
+					if (f.exists ()) {
+						f.delete ();
+					}
+				}
+
+				aVisited.setResponse (new RetrieveMapperResponse (directoryUriFrom (directoryUriFrom (aVisited.getPath ()))));
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace ();
+			aVisited.setException (new MapperExceptionResponse (e));
+		}
 	}
 
 	@Override
@@ -251,11 +361,18 @@ public class AWSClientRequestVisitor
 							aVisited.getConfiguration (), aVisited.getTarget (), aVisited.getTimeout (), groups [i]));
 				}
 
-				long time = aVisited.getTimeout ()*60 + 20*60;
+				Response <? extends ResponseVisitor> temp;
+				long time = aVisited.getTimeout ()*60 + 25*60;
 				responses = new ArrayList <> (mappeds.size ());
 				for (MappedProxy item : mappeds) {
-					responses.add (item.maybeNext (120000, time));
-					time = 1; // Wait just for the first instance
+					temp = item.maybeNext (120000, time);
+					if (temp != null) {
+						responses.add (temp);
+						time = 60; // Wait just for the first instance
+					}
+					else {
+						System.out.println ("error");
+					}
 				}
 
 				i = responses.size ();
@@ -264,21 +381,16 @@ public class AWSClientRequestVisitor
 				ProjectTestingMappedResponse normal;
 				for (Response <? extends ResponseVisitor> item : responses) {
 					i--;
-					if (item != null) {
-						if (item.getClass () == ProjectTestingMappedResponse.class) {
-							normal = (ProjectTestingMappedResponse) item;
-							uris [i] = normal.getUri ();
-						}
-						else if (item.getClass () == MappedExceptionResponse.class) {
-							anormal = (MappedExceptionResponse) item;
-							System.out.println (anormal.getMessage ());
-						}
-						else {
-							assert false: "check: response unexpected";
-						}
+					if (item.getClass () == ProjectTestingMappedResponse.class) {
+						normal = (ProjectTestingMappedResponse) item;
+						uris [i] = normal.getUri ();
+					}
+					else if (item.getClass () == MappedExceptionResponse.class) {
+						anormal = (MappedExceptionResponse) item;
+						System.out.println (anormal.getMessage ());
 					}
 					else {
-						System.out.println ("error");
+						assert false: "check: response unexpected";
 					}
 				}
 
@@ -293,7 +405,7 @@ public class AWSClientRequestVisitor
 						pool = newInstancePool ();
 						pool.setIds (startingInstancesResponse.getIds ());
 					}
-					pool.terminate ();
+					// pool.terminate ();
 				}
 				catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -398,5 +510,82 @@ public class AWSClientRequestVisitor
 	 * Factory of mapped proxy.
 	 */
 	protected MappedProxyFactory factory;
+
+	/**
+	 * Normalize `aUri' with Unix separator
+	 * and adding a separator at the end if not present.
+	 * @param aUri
+	 * @return
+	 */
+	protected String directoryUriFrom (String aUri) {
+		String result;
+
+		result = aUri.replace ("\\", "/");
+		if (! aUri.endsWith ("/")) {
+			result = result + "/";
+		}
+
+		return result;
+	}
+
+	/**
+	 * Merge `aFiles' in  `aMerged'.
+	 * @param aMerged
+	 * @param aFiles
+	 * @throws IOException
+	 */
+	public static void mergeFiles (File aMerged, Collection <File> aFiles) throws IOException {
+		@Nullable BufferedWriter out;
+		@Nullable BufferedReader in;
+		@Nullable String line;
+		FileInputStream fis;
+		FileWriter fstream;
+
+		out = null;
+		in = null;
+
+		try {
+			fstream = new FileWriter(aMerged, true);
+			out = new BufferedWriter(fstream);
+
+			for (File f : aFiles) {
+				fis = new FileInputStream (f);
+				in = new BufferedReader (new InputStreamReader (fis));
+
+				line = in.readLine ();
+				while (line != null) {
+					out.write(line);
+					out.newLine();
+					line = in.readLine ();
+				}
+
+				in.close();
+				in = null;
+			}
+
+			out.close();
+		}
+		finally {
+			if (out != null) {
+				try {
+					out.close ();
+				}
+				catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+			if (in != null) {
+				try {
+					in.close ();
+				}
+				catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 
 }

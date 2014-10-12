@@ -66,6 +66,9 @@ public class JsonLabeling <G>
 		}
 		
 		assert result != null: "check: result not null.";
+		
+		System.out.println (result);
+		
 		return result;
 	}
 	
