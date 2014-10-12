@@ -19,6 +19,7 @@ feature {NONE} -- Initialization
 			l_echo_option: AP_INTEGER_OPTION
 			l_store_option: AP_STRING_OPTION
 			l_retrieve_option: AP_STRING_OPTION
+			l_merge_option: AP_STRING_OPTION
 
 			l_tetsing_option: AP_FLAG
 			l_project_uri_option: AP_STRING_OPTION
@@ -26,8 +27,10 @@ feature {NONE} -- Initialization
 			l_project_configuration_option: AP_STRING_OPTION
 			l_project_target_option: AP_STRING_OPTION
 			l_project_timeout_option: AP_INTEGER_OPTION
+			l_redundant_option: AP_INTEGER_OPTION
+			l_uris_option: AP_STRING_OPTION
 
-			l_clusters: ARRAYED_LIST [ARRAYED_LIST [READABLE_STRING_8]]
+			l_clusters, l_original: ARRAYED_LIST [ARRAYED_LIST [READABLE_STRING_8]]
 			l_integer_parameter: like {AP_INTEGER_OPTION}.parameter
 			l_cursor: DS_BILINEAR_CURSOR [STRING]
 			l_directory: DIRECTORY
@@ -45,6 +48,9 @@ feature {NONE} -- Initialization
 
 			create l_retrieve_option.make_with_long_form ("retrieve")
 			l_parser.options.force_last (l_retrieve_option)
+
+			create l_merge_option.make_with_long_form ("merge")
+			l_parser.options.force_last (l_merge_option)
 
 			create l_tetsing_option.make_with_long_form ("testing")
 			l_parser.options.force_last (l_tetsing_option)
@@ -64,6 +70,12 @@ feature {NONE} -- Initialization
 			create l_project_timeout_option.make ('t', "timeout")
 			l_parser.options.force_last (l_project_timeout_option)
 
+			create l_redundant_option.make_with_long_form ("redundant")
+			l_parser.options.force_last (l_redundant_option)
+
+			create l_uris_option.make_with_long_form ("uris")
+			l_parser.options.force_last (l_uris_option)
+
 
 			l_parser.parse_array (a_arguments)
 
@@ -80,6 +92,38 @@ feature {NONE} -- Initialization
 						create {DTSA_STORE_REQUEST} request.make (l_path)
 					end
 				end
+			elseif l_retrieve_option.was_found then
+				if
+					attached l_retrieve_option.parameter as l_path and
+					l_project_uri_option.was_found and then attached l_project_uri_option.parameter as l_uri
+				then
+					if l_path.ends_with ("/") or l_path.ends_with ("\") then
+						print (l_path.substring (1, l_path.count - 1))
+						create l_directory.make (l_path.substring (1, l_path.count - 1))
+					else
+						create l_directory.make (l_path)
+					end
+
+					if l_directory.exists then
+						create {DTSA_RETRIEVE_REQUEST} request.make (l_path, l_uri)
+					end
+				end
+			elseif l_merge_option.was_found then
+				if
+					attached l_merge_option.parameter as l_path and
+					l_uris_option.was_found and then attached l_uris_option.parameter as l_uris
+				then
+					if l_path.ends_with ("/") or l_path.ends_with ("\") then
+						print (l_path.substring (1, l_path.count - 1))
+						create l_directory.make (l_path.substring (1, l_path.count - 1))
+					else
+						create l_directory.make (l_path)
+					end
+
+					if l_directory.exists then
+						create {DTSA_RESULT_MERGING_REQUEST} request.make (l_path, items_from (l_uris))
+					end
+				end
 			elseif l_tetsing_option.was_found then
 				if
 					l_project_uri_option.was_found and then attached l_project_uri_option.parameter as l_uri and
@@ -91,9 +135,19 @@ feature {NONE} -- Initialization
 					l_parser.parameters.do_all_with_index (agent (ia_classes: detachable STRING_8; ia_index: INTEGER_32; ia_clusters: ARRAYED_LIST [ARRAYED_LIST [READABLE_STRING_8]])
 						do
 							if attached ia_classes as l_classes then
-								ia_clusters.extend (classes_from (l_classes))
+								ia_clusters.extend (items_from (l_classes))
 							end
 						end (?, ?, l_clusters))
+
+					if l_redundant_option.was_found then
+						l_integer_parameter := l_redundant_option.parameter
+						if 1 <= l_integer_parameter then
+							l_original := l_clusters.twin
+							across 1 |..| l_integer_parameter as ic loop
+								l_clusters.append (l_original)
+							end
+						end
+					end
 
 					if l_project_timeout_option.was_found then
 						l_integer_parameter := l_project_timeout_option.parameter
@@ -117,11 +171,12 @@ feature {NONE} -- Implementation
 	random: RANDOM
 			-- Random.
 
-	classes_from (a_cluster: STRING_8): ARRAYED_LIST [READABLE_STRING_8]
+	items_from (a_cluster: STRING_8): ARRAYED_LIST [READABLE_STRING_8]
+			-- Splited `a_cluster' with semi-colon (";") character.
 		local
 
 		do
-			if attached {ARRAYED_LIST [STRING_8]} a_cluster.split (',') as l_list then
+			if attached {ARRAYED_LIST [STRING_8]} a_cluster.split (';') as l_list then
 				Result := l_list
 			else
 				check is_an_arrayed_list: False then end

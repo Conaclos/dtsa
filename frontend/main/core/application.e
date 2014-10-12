@@ -35,6 +35,7 @@ feature {NONE} -- Initialization
 				 create l_coordinator.make
 				 l_request.acept (l_coordinator)
 			end
+--			(create {DTSA_MAPPER_TEST}).launch
 		end
 
 end

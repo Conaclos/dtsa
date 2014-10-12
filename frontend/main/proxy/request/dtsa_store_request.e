@@ -59,8 +59,6 @@ feature -- Processing
 			-- <Precursor>
 		do
 			a_visitor.visit_store (Current)
-		ensure then
-			responded: has_response
 		end
 
 end

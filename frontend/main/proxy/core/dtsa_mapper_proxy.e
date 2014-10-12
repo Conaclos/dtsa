@@ -39,12 +39,14 @@ feature {NONE} -- Initialization
 			json.add_converter (create {JSON_DTSA_STORE_RESPONSE_CONVERTER})
 			json.add_converter (create {JSON_DTSA_RETRIEVE_REQUEST_CONVERTER})
 			json.add_converter (create {JSON_DTSA_RETRIEVE_RESPONSE_CONVERTER})
+			json.add_converter (create {JSON_DTSA_RESULT_MERGING_REQUEST_CONVERTER})
 
 			create request_labeling
 			request_labeling.put ({DTSA_ECHO_REQUEST}, "echo")
 			request_labeling.put ({DTSA_DISTRIBUTED_PROJECT_TESTING_REQUEST}, "distributed_testing")
 			request_labeling.put ({DTSA_RETRIEVE_REQUEST}, "retrieve")
 			request_labeling.put ({DTSA_STORE_REQUEST}, "store")
+			request_labeling.put ({DTSA_RESULT_MERGING_REQUEST}, "merge")
 
 			create response_labeling
 			response_labeling.put ({DTSA_ECHO_RESPONSE}, "echo")
@@ -147,6 +149,18 @@ feature -- Basic opertaion
 		do
 			if attached response_for (a_visited) as l_instance then
 				if attached {DTSA_DISTRIBUTED_PROJECT_TESTING_RESPONSE} l_instance as l_normal then
+					a_visited.set_response (l_normal)
+				elseif attached {DTSA_EXCEPTION_RESPONSE} l_instance as l_exception then
+					a_visited.set_exception (l_exception)
+				end
+			end
+		end
+
+	visit_result_merging (a_visited: DTSA_RESULT_MERGING_REQUEST)
+			-- <Precursor>
+		do
+			if attached response_for (a_visited) as l_instance then
+				if attached {DTSA_RETRIEVE_RESPONSE} l_instance as l_normal then
 					a_visited.set_response (l_normal)
 				elseif attached {DTSA_EXCEPTION_RESPONSE} l_instance as l_exception then
 					a_visited.set_exception (l_exception)

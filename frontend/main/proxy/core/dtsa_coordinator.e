@@ -40,7 +40,7 @@ feature -- Status
 feature -- Visit
 
 	visit_store (a_visited: DTSA_STORE_REQUEST)
-			-- Visit `a_visited'.
+			-- <Precursor>
 		do
 			local_mapper.launch
 			a_visited.acept (local_mapper)
@@ -48,12 +48,12 @@ feature -- Visit
 		end
 
 	visit_project_compilation (a_visited: DTSA_PROJECT_COMPILATION_REQUEST)
-			-- Visit `a_visited'.
+			-- <Precursor>
 		do
 		end
 
 	visit_project_testing (a_visited: DTSA_PROJECT_TESTING_REQUEST)
-			-- Visit `a_visited'.
+			-- <Precursor>
 		local
 			l_clusters:detachable  ARRAYED_LIST [ARRAYED_LIST [READABLE_STRING_8]]
 		do
@@ -65,12 +65,13 @@ feature -- Visit
 		end
 
 	visit_distributed_project_testing (a_visited: DTSA_DISTRIBUTED_PROJECT_TESTING_REQUEST)
-			-- Visit `a_visited'.
+			-- <Precursor>
 		local
 			l_remote_storing: detachable STRING_8
 			l_remote_request: DTSA_DISTRIBUTED_PROJECT_TESTING_REQUEST
 			l_store_request: DTSA_STORE_REQUEST
 			l_retrieve_request: DTSA_RETRIEVE_REQUEST
+			l_merge_request: DTSA_RESULT_MERGING_REQUEST
 			l_dir: DIRECTORY
 		do
 			local_mapper.launch
@@ -100,10 +101,9 @@ feature -- Visit
 				end
 
 				if attached l_remote_request.response as l_testing_response then
-					across l_testing_response.uris as ic loop
-						create l_retrieve_request.make (Destination, ic.item)
-						l_retrieve_request.acept (local_mapper)
-					end
+					create l_merge_request.make (Destination, l_testing_response.uris)
+					l_merge_request.acept (local_mapper)
+
 					a_visited.set_response (create {DTSA_DISTRIBUTED_PROJECT_TESTING_RESPONSE}.make_singleton (Destination))
 				elseif attached l_remote_request.exception as l_exception then
 					a_visited.set_exception (l_exception)
@@ -114,7 +114,7 @@ feature -- Visit
 		end
 
 	visit_echo (a_visited: DTSA_ECHO_REQUEST)
-			-- Visit `a_visited'.
+			-- <Precursor>
 		do
 			local_mapper.launch
 			a_visited.acept (local_mapper)
@@ -122,7 +122,15 @@ feature -- Visit
 		end
 
 	visit_retrieve (a_visited: DTSA_RETRIEVE_REQUEST)
-			-- Visit `a_visited'.
+			-- <Precursor>
+		do
+			local_mapper.launch
+			a_visited.acept (local_mapper)
+			local_mapper.finish
+		end
+
+	visit_result_merging (a_visited: DTSA_RESULT_MERGING_REQUEST)
+			-- <Precursor>
 		do
 			local_mapper.launch
 			a_visited.acept (local_mapper)

@@ -35,7 +35,7 @@ feature {NONE} -- Creation
 
 feature -- Access
 
-	uris: LIST [READABLE_STRING_GENERAL]
+	uris: ARRAYED_LIST [READABLE_STRING_GENERAL]
 			-- Results of the distributed testing session.
 
 feature -- Processing

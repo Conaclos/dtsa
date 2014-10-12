@@ -67,7 +67,7 @@ feature -- Processing
 			unanswered: not has_response and not has_exception
 		deferred
 		ensure
-			answered_implication: (has_response or has_exception) implies a_visitor.is_reactive
+			reactive_implication: a_visitor.is_reactive implies (has_response or has_exception)
 		end
 
 feature {NONE} -- Change

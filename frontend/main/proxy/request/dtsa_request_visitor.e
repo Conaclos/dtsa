@@ -77,4 +77,14 @@ feature -- Visit
 				(a_visited.has_response xor a_visited.has_exception)
 		end
 
+	visit_result_merging (a_visited: DTSA_RESULT_MERGING_REQUEST)
+			-- Visit `a_visited'.
+		note
+			design_pattern: "visitor"
+		deferred
+		ensure
+			has_response: is_reactive implies
+				(a_visited.has_response xor a_visited.has_exception)
+		end
+
 end

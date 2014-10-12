@@ -19,7 +19,11 @@
 		<library name="json" location="..\embeded_library\json\json-safe.ecf"/>
 		<library name="net" location="$ISE_LIBRARY\library\net\net-safe.ecf"/>
 		<cluster name="core" location=".\core\" recursive="true"/>
-		<cluster name="proxy" location=".\proxy\" recursive="true"/>
+		<cluster name="proxy" location=".\proxy\" recursive="true">
+			<file_rule>
+				<exclude>^exception$</exclude>
+			</file_rule>
+		</cluster>
 		<cluster name="util" location=".\util\" recursive="true"/>
 	</target>
 </system>
