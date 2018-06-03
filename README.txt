@@ -48,3 +48,6 @@ Help for installing Windows Server instance or Ubuntu instance is available at:
 
 Results are available at https://docs.google.com/spreadsheets/d/1ZVFbyamfFYeIyB4VcPC1X4GwyOjOZEMMKOhbvXW3xb4/edit?usp=sharing
 
+The report is available [here](http://se.inf.ethz.ch/student_projects/victorien_elvinger/master_thesis_victorien_elvinger.pdf).
+
+
